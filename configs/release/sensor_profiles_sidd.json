@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "purpose": "SIDD 公开数据 CPU 工程验证，不是目标麒麟设备量产标定",
+  "input_domain": "SIDD normalized RAW [0,1]",
+  "profiles": [
+    {"camera_id": "GP", "cfa": "bggr", "sensor_profile": "other"},
+    {"camera_id": "IP", "cfa": "rggb", "sensor_profile": "other"},
+    {"camera_id": "S6", "cfa": "grbg", "sensor_profile": "other"},
+    {"camera_id": "N6", "cfa": "bggr", "sensor_profile": "other"},
+    {"camera_id": "G4", "cfa": "bggr", "sensor_profile": "other"}
+  ],
+  "release_blockers": [
+    "缺少目标麒麟 9000 手机各物理 Camera 的 Black/White Level 标定",
+    "缺少目标 Sensor 四通道 Shot/Read Noise、温度、行列噪声标定",
+    "缺少 HAL RAW Stream 与上游传统 NR 配置冻结"
+  ]
+}
+

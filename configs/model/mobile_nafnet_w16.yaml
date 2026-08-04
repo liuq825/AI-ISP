@@ -1,0 +1,12 @@
+# Tiny Conditional MobileNAFNet-W16 Dark Preview V3 冻结拓扑
+image_channels: 4
+base_width: 16
+encoder_blocks: [2, 2, 4]
+middle_blocks: 2
+decoder_blocks: [2, 2, 2]
+feature_channels: [16, 32, 64, 128]
+condition_dim: 24
+film_injection: [encoder_stage_2, encoder_stage_3, middle]
+output_semantics: noise_pred
+block: MobileNAFBlock-DW
+

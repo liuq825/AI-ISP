@@ -1,0 +1,37 @@
+{
+  "manifest_version": "3.0.0-engineering",
+  "release_ready": false,
+  "validation_scope": "CPU training and ONNX engineering validation",
+  "model_name": "Tiny Conditional MobileNAFNet-W16 Dark Preview V3",
+  "parameter_count": 660836,
+  "output_semantics": "noise_pred",
+  "condition_schema": "configs/release/condition_schema_v2.json",
+  "sensor_profiles": "configs/release/sensor_profiles_sidd.json",
+  "artifact_layout": "static_3",
+  "weights": {
+    "path": "artifacts/cpu_smoke/pruning/p0/model_fp32.safetensors",
+    "sha256": "a12d8138798909c4250cf066da6dbd847a30a3fdcf3e8aab37bcae89d24f38c5",
+    "precision": "FP32 CPU smoke trained"
+  },
+  "onnx": [
+    {"profile": "P0", "path": "artifacts/release_onnx/dark_preview_p0.onnx", "shape": [1, 4, 768, 1024], "sha256": "49d693c1f6d6dfc015d1c487eca5faae189c9653973663e73551f93452b57d9f"},
+    {"profile": "P1", "path": "artifacts/release_onnx/dark_preview_p1.onnx", "shape": [1, 4, 544, 960], "valid_shape": [1, 4, 540, 960], "sha256": "44520eefd725c1baa529aa816996ac75e1853e85f5d4b4fad77d6654458c124f"},
+    {"profile": "P2", "path": "artifacts/release_onnx/dark_preview_p2.onnx", "shape": [1, 4, 640, 960], "sha256": "3ec94a05ad1d2b9ffe6f7112220681e974e6687dbffe35dfc96370368fe0a387"}
+  ],
+  "quantization": {
+    "status": "PTQ tensor chain smoke passed; full-model LSQ+ QAT not trained",
+    "target": "W8A8",
+    "activation_offset_policy": "pending target DDK microbenchmark"
+  },
+  "om": {
+    "available": false,
+    "reason": "本机没有麒麟 9000 DDK/ATC/AMCT 和目标设备"
+  },
+  "mandatory_target_validation": [
+    "目标设备配对数据完整训练、盲测和各 Camera/ISO/Profile 分桶画质",
+    "LSQ+ QAT 与对称 LSQ A/B、Q/DQ 参数审计",
+    "ATC/OM 转换、NPU 100% 落点且 CPU/GPU 回退为 0",
+    "P0/P1/P2 30fps、功耗、内存、温升、稳定性和失败安全",
+    "目标 Sensor Profile、HAL P1 Guard Rows/Formatter 和 Camera 切换闭环"
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "P0": {
+    "profile_mode": "smoke",
+    "compile_height": 32,
+    "compile_width": 48,
+    "release_compile_height": 768,
+    "release_compile_width": 1024,
+    "path": "artifacts\\cpu_smoke\\onnx\\dark_preview_p0.onnx",
+    "sha256": "22663dd06db2b1258bb28fc5c6663e21e72ca8ddc31805d4c65a4270c8fe5896",
+    "operators": [
+      "Add",
+      "Constant",
+      "Conv",
+      "Gemm",
+      "Identity",
+      "Mul",
+      "Relu",
+      "Resize",
+      "Slice",
+      "Tanh",
+      "Unsqueeze"
+    ],
+    "unsupported_operators": [],
+    "dynamic_slice_inputs": [],
+    "input_shapes": {
+      "packed_raw": [
+        1,
+        4,
+        32,
+        48
+      ],
+      "condition": [
+        1,
+        24
+      ]
+    },
+    "alignment": {
+      "max_abs_error": 3.725290298461914e-09,
+      "mean_abs_error": 5.479018905241162e-10
+    }
+  },
+  "P1": {
+    "profile_mode": "smoke",
+    "compile_height": 32,
+    "compile_width": 48,
+    "release_compile_height": 544,
+    "release_compile_width": 960,
+    "path": "artifacts\\cpu_smoke\\onnx\\dark_preview_p1.onnx",
+    "sha256": "22663dd06db2b1258bb28fc5c6663e21e72ca8ddc31805d4c65a4270c8fe5896",
+    "operators": [
+      "Add",
+      "Constant",
+      "Conv",
+      "Gemm",
+      "Identity",
+      "Mul",
+      "Relu",
+      "Resize",
+      "Slice",
+      "Tanh",
+      "Unsqueeze"
+    ],
+    "unsupported_operators": [],
+    "dynamic_slice_inputs": [],
+    "input_shapes": {
+      "packed_raw": [
+        1,
+        4,
+        32,
+        48
+      ],
+      "condition": [
+        1,
+        24
+      ]
+    },
+    "alignment": {
+      "max_abs_error": 3.725290298461914e-09,
+      "mean_abs_error": 5.479018905241162e-10
+    }
+  },
+  "P2": {
+    "profile_mode": "smoke",
+    "compile_height": 40,
+    "compile_width": 48,
+    "release_compile_height": 640,
+    "release_compile_width": 960,
+    "path": "artifacts\\cpu_smoke\\onnx\\dark_preview_p2.onnx",
+    "sha256": "f39b4cb8152c101e50a4cae258a7a5e46ea28e1701816c8d6797b4915bc42eca",
+    "operators": [
+      "Add",
+      "Constant",
+      "Conv",
+      "Gemm",
+      "Identity",
+      "Mul",
+      "Relu",
+      "Resize",
+      "Slice",
+      "Tanh",
+      "Unsqueeze"
+    ],
+    "unsupported_operators": [],
+    "dynamic_slice_inputs": [],
+    "input_shapes": {
+      "packed_raw": [
+        1,
+        4,
+        40,
+        48
+      ],
+      "condition": [
+        1,
+        24
+      ]
+    },
+    "alignment": {
+      "max_abs_error": 3.725290298461914e-09,
+      "mean_abs_error": 5.516293533069927e-10
+    }
+  }
+}

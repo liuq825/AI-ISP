@@ -1,0 +1,238 @@
+{
+  "status": "passed",
+  "training": {
+    "scope": "CPU 小样本工程闭环，不代表量产画质",
+    "config": {
+      "dataset_root": "datasets\\SIDD_Training_Subset",
+      "output_dir": "artifacts\\cpu_smoke\\reports",
+      "patch_size": 32,
+      "batch_size": 1,
+      "steps": 4,
+      "samples_per_epoch": 4,
+      "max_pairs": 2,
+      "learning_rate": 0.0002,
+      "weight_decay": 0.0001,
+      "gradient_clip": 1.0,
+      "seed": 20260804,
+      "torch_threads": 4
+    },
+    "device": "cpu",
+    "torch_version": "2.13.0+cpu",
+    "parameter_count": 660836,
+    "elapsed_seconds": 0.2980432999320328,
+    "seconds_per_step": 0.0745108249830082,
+    "history": [
+      {
+        "step": 1,
+        "loss_total": 0.06324300915002823,
+        "loss_raw": 0.035519104450941086,
+        "loss_tone": 0.122263103723526,
+        "loss_gradient": 0.046857140958309174,
+        "gradient_norm": 0.0,
+        "raw_psnr": 27.022116804367403
+      },
+      {
+        "step": 2,
+        "loss_total": 0.0241018608212471,
+        "loss_raw": 0.014863436110317707,
+        "loss_tone": 0.04529760777950287,
+        "loss_gradient": 0.015584589913487434,
+        "gradient_norm": 0.10421939939260483,
+        "raw_psnr": 33.90102671824384
+      },
+      {
+        "step": 3,
+        "loss_total": 0.04075077176094055,
+        "loss_raw": 0.018411584198474884,
+        "loss_tone": 0.08660783618688583,
+        "loss_gradient": 0.030946986749768257,
+        "gradient_norm": 0.0,
+        "raw_psnr": 32.72140981675176
+      },
+      {
+        "step": 4,
+        "loss_total": 0.027149394154548645,
+        "loss_raw": 0.01525607518851757,
+        "loss_tone": 0.05394623056054115,
+        "loss_gradient": 0.017164554446935654,
+        "gradient_norm": 0.0,
+        "raw_psnr": 34.28267462283751
+      }
+    ],
+    "validation": {
+      "raw_psnr": 27.022116804367403,
+      "global_ssim_smoke": 0.5235552513081279,
+      "finite": true,
+      "min": 0.0,
+      "max": 0.3148229718208313
+    }
+  },
+  "topology": {
+    "weights": "artifacts\\cpu_smoke\\pruning\\p0\\model_fp32.safetensors",
+    "topology": "artifacts\\cpu_smoke\\pruning\\p0\\topology.json",
+    "model": "Tiny Conditional MobileNAFNet-W16 Dark Preview V3",
+    "image_channels": 4,
+    "base_width": 16,
+    "encoder_blocks": [
+      2,
+      2,
+      4
+    ],
+    "middle_blocks": 2,
+    "decoder_blocks": [
+      2,
+      2,
+      2
+    ],
+    "feature_channels": [
+      16,
+      32,
+      64,
+      128
+    ],
+    "condition_dim": 24,
+    "film_injection": [
+      "encoder_stage_2",
+      "encoder_stage_3",
+      "middle"
+    ],
+    "output_semantics": "noise_pred",
+    "strength_policy": "inside_graph_output_scale",
+    "weights_file": "model_fp32.safetensors",
+    "weights_sha256": "a12d8138798909c4250cf066da6dbd847a30a3fdcf3e8aab37bcae89d24f38c5"
+  },
+  "ptq_smoke": {
+    "max_abs_error": 0.001959860324859619,
+    "mean_abs_error": 0.0009788365568965673,
+    "saturation_rate": 0.00048828125,
+    "scale": 0.003920106682926416,
+    "offset": 0.00029718875885009766
+  },
+  "onnx": {
+    "P0": {
+      "profile_mode": "smoke",
+      "compile_height": 32,
+      "compile_width": 48,
+      "release_compile_height": 768,
+      "release_compile_width": 1024,
+      "path": "artifacts\\cpu_smoke\\onnx\\dark_preview_p0.onnx",
+      "sha256": "22663dd06db2b1258bb28fc5c6663e21e72ca8ddc31805d4c65a4270c8fe5896",
+      "operators": [
+        "Add",
+        "Constant",
+        "Conv",
+        "Gemm",
+        "Identity",
+        "Mul",
+        "Relu",
+        "Resize",
+        "Slice",
+        "Tanh",
+        "Unsqueeze"
+      ],
+      "unsupported_operators": [],
+      "dynamic_slice_inputs": [],
+      "input_shapes": {
+        "packed_raw": [
+          1,
+          4,
+          32,
+          48
+        ],
+        "condition": [
+          1,
+          24
+        ]
+      },
+      "alignment": {
+        "max_abs_error": 3.725290298461914e-09,
+        "mean_abs_error": 5.479018905241162e-10
+      }
+    },
+    "P1": {
+      "profile_mode": "smoke",
+      "compile_height": 32,
+      "compile_width": 48,
+      "release_compile_height": 544,
+      "release_compile_width": 960,
+      "path": "artifacts\\cpu_smoke\\onnx\\dark_preview_p1.onnx",
+      "sha256": "22663dd06db2b1258bb28fc5c6663e21e72ca8ddc31805d4c65a4270c8fe5896",
+      "operators": [
+        "Add",
+        "Constant",
+        "Conv",
+        "Gemm",
+        "Identity",
+        "Mul",
+        "Relu",
+        "Resize",
+        "Slice",
+        "Tanh",
+        "Unsqueeze"
+      ],
+      "unsupported_operators": [],
+      "dynamic_slice_inputs": [],
+      "input_shapes": {
+        "packed_raw": [
+          1,
+          4,
+          32,
+          48
+        ],
+        "condition": [
+          1,
+          24
+        ]
+      },
+      "alignment": {
+        "max_abs_error": 3.725290298461914e-09,
+        "mean_abs_error": 5.479018905241162e-10
+      }
+    },
+    "P2": {
+      "profile_mode": "smoke",
+      "compile_height": 40,
+      "compile_width": 48,
+      "release_compile_height": 640,
+      "release_compile_width": 960,
+      "path": "artifacts\\cpu_smoke\\onnx\\dark_preview_p2.onnx",
+      "sha256": "f39b4cb8152c101e50a4cae258a7a5e46ea28e1701816c8d6797b4915bc42eca",
+      "operators": [
+        "Add",
+        "Constant",
+        "Conv",
+        "Gemm",
+        "Identity",
+        "Mul",
+        "Relu",
+        "Resize",
+        "Slice",
+        "Tanh",
+        "Unsqueeze"
+      ],
+      "unsupported_operators": [],
+      "dynamic_slice_inputs": [],
+      "input_shapes": {
+        "packed_raw": [
+          1,
+          4,
+          40,
+          48
+        ],
+        "condition": [
+          1,
+          24
+        ]
+      },
+      "alignment": {
+        "max_abs_error": 3.725290298461914e-09,
+        "mean_abs_error": 5.516293533069927e-10
+      }
+    }
+  },
+  "limitations": [
+    "CPU 小样本结果仅证明工程链路可运行，不代表完整训练收敛或量产画质",
+    "OM 转换、NPU 100% 落点、30fps、功耗、热稳态必须在麒麟 9000 与目标 DDK 实测",
+    "smoke 模式导出等拓扑小 Shape；发布 Shape 使用 --profile-mode release 另行导出"
+  ]
+}

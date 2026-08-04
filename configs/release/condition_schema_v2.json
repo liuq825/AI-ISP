@@ -1,0 +1,36 @@
+{
+  "schema_name": "ConditionSchemaV2",
+  "version": "2.0.0",
+  "dtype": "float32",
+  "shape": [1, 24],
+  "range": [0.0, 1.0],
+  "fields": [
+    {"index": 0, "name": "exposure_time_s", "encoding": "(log2(t)-log2(1/16000))/log2(16000)"},
+    {"index": 1, "name": "iso", "encoding": "log2(iso/50)/9"},
+    {"index": 2, "name": "analog_gain", "encoding": "log2(gain)/6"},
+    {"index": 3, "name": "digital_gain", "encoding": "log2(gain)/3"},
+    {"index": 4, "name": "noise_level", "encoding": "value/0.25"},
+    {"index": 5, "name": "noise_shot_a", "encoding": "(log10(a)+6)/5"},
+    {"index": 6, "name": "noise_read_b", "encoding": "(log10(b)+10)/7"},
+    {"index": 7, "name": "sensor_temperature_c", "encoding": "(value+20)/120"},
+    {"index": 8, "name": "scene_brightness", "encoding": "identity"},
+    {"index": 9, "name": "scene_ev", "encoding": "(value+8)/16"},
+    {"index": 10, "name": "camera_main", "encoding": "one_hot"},
+    {"index": 11, "name": "camera_ultrawide", "encoding": "one_hot"},
+    {"index": 12, "name": "camera_tele", "encoding": "one_hot"},
+    {"index": 13, "name": "camera_other", "encoding": "one_hot"},
+    {"index": 14, "name": "sensor_profile_0", "encoding": "one_hot"},
+    {"index": 15, "name": "sensor_profile_1", "encoding": "one_hot"},
+    {"index": 16, "name": "sensor_profile_2", "encoding": "one_hot"},
+    {"index": 17, "name": "sensor_profile_other", "encoding": "one_hot"},
+    {"index": 18, "name": "lens_wide", "encoding": "one_hot"},
+    {"index": 19, "name": "lens_ultrawide", "encoding": "one_hot"},
+    {"index": 20, "name": "lens_tele", "encoding": "one_hot"},
+    {"index": 21, "name": "lens_other", "encoding": "one_hot"},
+    {"index": 22, "name": "metadata_valid", "encoding": "boolean"},
+    {"index": 23, "name": "enhancement_strength", "encoding": "identity"}
+  ],
+  "one_hot_groups": [[10, 14], [14, 18], [18, 22]],
+  "invalid_policy": "bypass"
+}
+

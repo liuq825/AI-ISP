@@ -1,0 +1,32 @@
+{
+  "model": "Tiny Conditional MobileNAFNet-W16 Dark Preview V3",
+  "image_channels": 4,
+  "base_width": 16,
+  "encoder_blocks": [
+    2,
+    2,
+    4
+  ],
+  "middle_blocks": 2,
+  "decoder_blocks": [
+    2,
+    2,
+    2
+  ],
+  "feature_channels": [
+    16,
+    32,
+    64,
+    128
+  ],
+  "condition_dim": 24,
+  "film_injection": [
+    "encoder_stage_2",
+    "encoder_stage_3",
+    "middle"
+  ],
+  "output_semantics": "noise_pred",
+  "strength_policy": "inside_graph_output_scale",
+  "weights_file": "model_fp32.safetensors",
+  "weights_sha256": "a12d8138798909c4250cf066da6dbd847a30a3fdcf3e8aab37bcae89d24f38c5"
+}

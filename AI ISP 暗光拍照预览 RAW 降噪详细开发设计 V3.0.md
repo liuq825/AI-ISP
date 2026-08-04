@@ -5,6 +5,7 @@
 > 推理形态：Full-Tensor Single Pass；三套 Static Shape OM 为发布基线，单文件三档 OM 为条件候选
 > 部署模型：Tiny Conditional MobileNAFNet-W16 Dark Preview，PTQ 验链后执行 LSQ+ QAT
 > 文档状态：工程实现与量产准入基线
+> 实装增补：2026-08-04 已完成 CPU 小样本训练、真实发布 Shape ONNX 与 Runtime 安全骨架验证；详见第 21 章
 > 上位参考：[AI ISP 量产设计基线 V18.0](./AI%20ISP量产设计基线%20V18.0.md)
 > 历史详细设计：[AI ISP RAW 降噪增强详细开发设计 V1.0](./AI%20ISP%20RAW降噪增强详细开发设计%20V1.0.md)
 > 上一版详细设计：[AI ISP 暗光拍照预览 RAW 降噪详细开发设计 V2.0](./AI%20ISP%20暗光拍照预览%20RAW%20降噪详细开发设计%20V2.0.md)
@@ -77,6 +78,19 @@
 - 未记录的 CPU/GPU 算子回退；
 - 异常时继续输出可能被污染的 AI RAW。
 - 运行时 Monkey Patch、依赖 Python 动态通道值的 Slice、以及未经等价性证明的 Rep 分支折叠。
+
+### 0.3 2026-08-04 工程实装结论
+
+V3.0 已从纯设计基线进入可运行的 CPU/ONNX PoC。当前代码实测结论如下：
+
+- SIDD 完整 RAW 的 MAT 是 HDF5 v7.3，键为 `x`，h5py 读取后需要把 `[W,H]` 转回 `[H,W]`；数据层已按 Patch 读取，避免整幅 12MP RAW 常驻内存；
+- W16 冻结实现参数量为 660,836，落在 0.55M～0.80M 预算内；
+- 使用两个 SIDD 场景和 32×32 Packed Patch 在 CPU 完成 4 Step 反向传播、优化、safetensors 冻结、PTQ 张量验链和三图导出；
+- P0/P1/P2 真实发布 Shape ONNX 均通过 ONNX Runtime 对齐，最大绝对误差不超过 `6.52e-9`，StaticSimpleGate 的 Slice 切点审计为常量；
+- 发布分辨率 PyTorch CPU P50 约为 P0 1558ms、P1 987ms、P2 1163ms，远超 33.3ms 帧周期，因此继续冻结“禁止 CPU AI 回退”；
+- 当前证据不包含完整训练收敛、Teacher/KD、P10/P15、完整 W8A8 QAT、OM、NPU 落点和目标机画质/性能。`release_ready` 必须保持 `false`。
+
+工程实现对原设计做一项明确化：`enhancement_strength` 仍通过 Condition 输入模型，并在图内对 `noise_pred` 执行唯一一次强度缩放，从结构上保证 `s=0` 时恒等；Runtime 图外不得二次乘强度。该明确化通过单元测试冻结。
 
 ---
 
@@ -1801,3 +1815,42 @@ V3.0 保持 V2.0 的核心物理约束：Camera Pipeline 先生成具有正确 C
 ~~~
 
 发布决策只接受目标机证据：完整图 NPU 落点、端到端 P95/P99、增量内存、持续功耗、暗部画质、Camera 切换和失败安全。任何单项平均结果都不能替代三 Profile、全 Camera 和热稳态的完整准入矩阵。
+
+---
+
+## 21. CPU/ONNX 实装与证据索引
+
+### 21.1 当前代码覆盖
+
+|设计项|实现位置|验证状态|
+|---|---|---|
+|四 CFA Pack/Unpack、P1 Pad/Crop|`ai_isp/data/pack_raw.py`|单元测试通过|
+|ConditionSchemaV2|`ai_isp/data/condition_v2.py`|维度、Clamp、one-hot 通过|
+|SIDD HDF5 Patch/场景划分|`ai_isp/data/sidd_dataset.py`|真实样本读取与防泄漏通过|
+|W16 Student/StaticSimpleGate/FiLM|`ai_isp/models/mobile_nafnet.py`|Shape、参数量、强度 0 恒等通过|
+|RepDenseGate 折叠|`ai_isp/models/rep_dense_gate.py`|随机 Tensor 等价通过|
+|RAW/Tone/Gradient Loss|`ai_isp/losses/dark_preview_losses.py`|CPU 反向传播通过|
+|剪枝业务不变量|`ai_isp/pruning/nafnet_pruning_validator.py`|未剪枝基线通过|
+|PTQ/LSQ+ 基元|`ai_isp/quantization/`|张量验链通过，完整 QAT 待执行|
+|三静态 ONNX|`ai_isp/export/static_profiles.py`|发布 Shape 和 ORT 对齐通过|
+|Trigger/Profile/Failsafe|`ai_isp/runtime/`、`runtime/`|Python 测试通过；C++ MSVC/C++17 构建与 CTest 通过|
+
+### 21.2 可复现制品
+
+- CPU 全流程摘要：`artifacts/cpu_smoke/全流程摘要.json`；
+- 发布 Shape ONNX 审计：`artifacts/release_onnx/onnx_export_report.json`；
+- CPU 发布分辨率基准：`artifacts/reports/CPU发布分辨率性能.json`；
+- 工程 Manifest：`artifacts/release/model_manifest.json`，当前 `release_ready=false`；
+- 中文关键步骤：[开发关键步骤与注意事项](./docs/开发关键步骤与注意事项.md)；
+- 详细验证：[CPU全流程验证报告](./docs/CPU全流程验证报告.md)；
+- 数据说明：[SIDD数据集数据卡](./docs/SIDD数据集数据卡.md)。
+
+### 21.3 从 PoC 到量产的剩余门禁
+
+当前项目完成的是 P1 CPU/ONNX PoC 与一部分 P2 数据适配，不等同于 15 章的 P3～P6。下一次状态升级至少需要：
+
+1. 目标设备 Sensor Profile 和真实配对/静态 Burst 数据；
+2. GPU 完整 Teacher、Student、KD、剪枝恢复和 LSQ+/LSQ 训练报告；
+3. 目标 DDK 的 PTQ/QAT Q/DQ、ATC、OM 和逐层参数审计；
+4. 麒麟 9000 三 Profile 100% NPU、P95/P99、内存、功耗、温升和稳定性；
+5. Camera HAL P1 零冗余写入、多摄切换、异常 Bypass、灰度和回滚闭环。

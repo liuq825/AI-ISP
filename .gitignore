@@ -1,0 +1,26 @@
+# 本地环境与缓存
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# 数据集只保留在本机，不提交到代码仓
+datasets/
+
+# 训练与导出制品默认不提交；报告中的小型 JSON/Markdown 可按需纳入
+artifacts/checkpoints/
+artifacts/onnx/
+artifacts/tensorboard/
+artifacts/cpp_build/
+artifacts/**/*.pth
+artifacts/**/*.pt
+artifacts/**/*.safetensors
+artifacts/**/*.onnx
+artifacts/**/*.om
+
+# 编辑器与系统文件
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

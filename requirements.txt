@@ -1,0 +1,12 @@
+# 2026-08-04 CPU/ONNX 验证使用的直接依赖精确版本。
+torch==2.13.0
+numpy==2.5.1
+scipy==1.18.0
+h5py==3.16.0
+PyYAML==6.0.3
+safetensors==0.8.0
+onnx==1.22.0
+onnxruntime==1.28.0
+onnxscript==0.7.1
+torch-pruning==1.6.1
+pytest==9.1.1

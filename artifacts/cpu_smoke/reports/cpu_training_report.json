@@ -1,0 +1,67 @@
+{
+  "scope": "CPU 小样本工程闭环，不代表量产画质",
+  "config": {
+    "dataset_root": "datasets\\SIDD_Training_Subset",
+    "output_dir": "artifacts\\cpu_smoke\\reports",
+    "patch_size": 32,
+    "batch_size": 1,
+    "steps": 4,
+    "samples_per_epoch": 4,
+    "max_pairs": 2,
+    "learning_rate": 0.0002,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "seed": 20260804,
+    "torch_threads": 4
+  },
+  "device": "cpu",
+  "torch_version": "2.13.0+cpu",
+  "parameter_count": 660836,
+  "elapsed_seconds": 0.2980432999320328,
+  "seconds_per_step": 0.0745108249830082,
+  "history": [
+    {
+      "step": 1,
+      "loss_total": 0.06324300915002823,
+      "loss_raw": 0.035519104450941086,
+      "loss_tone": 0.122263103723526,
+      "loss_gradient": 0.046857140958309174,
+      "gradient_norm": 0.0,
+      "raw_psnr": 27.022116804367403
+    },
+    {
+      "step": 2,
+      "loss_total": 0.0241018608212471,
+      "loss_raw": 0.014863436110317707,
+      "loss_tone": 0.04529760777950287,
+      "loss_gradient": 0.015584589913487434,
+      "gradient_norm": 0.10421939939260483,
+      "raw_psnr": 33.90102671824384
+    },
+    {
+      "step": 3,
+      "loss_total": 0.04075077176094055,
+      "loss_raw": 0.018411584198474884,
+      "loss_tone": 0.08660783618688583,
+      "loss_gradient": 0.030946986749768257,
+      "gradient_norm": 0.0,
+      "raw_psnr": 32.72140981675176
+    },
+    {
+      "step": 4,
+      "loss_total": 0.027149394154548645,
+      "loss_raw": 0.01525607518851757,
+      "loss_tone": 0.05394623056054115,
+      "loss_gradient": 0.017164554446935654,
+      "gradient_norm": 0.0,
+      "raw_psnr": 34.28267462283751
+    }
+  ],
+  "validation": {
+    "raw_psnr": 27.022116804367403,
+    "global_ssim_smoke": 0.5235552513081279,
+    "finite": true,
+    "min": 0.0,
+    "max": 0.3148229718208313
+  }
+}

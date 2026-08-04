@@ -1,0 +1,14 @@
+# GPU/高算力环境的完整 Student FP32 训练基线
+seed: 20260804
+device: auto
+patch_sizes: [256, 384]
+late_patch_size: 512
+batch_size: 8
+steps: 400000
+learning_rate: 0.0002
+weight_decay: 0.0001
+gradient_clip: 1.0
+warmup_steps: 5000
+scheduler: cosine
+loss_weights: {raw: 0.55, tone: 0.30, gradient: 0.15}
+

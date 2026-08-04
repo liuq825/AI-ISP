@@ -1,0 +1,9 @@
+# Teacher 仅用于 GPU 训练/蒸馏，不进入移动端发布图
+image_channels: 4
+base_width: 32
+encoder_blocks: [2, 2, 4, 8]
+middle_blocks: 4
+decoder_blocks: [2, 2, 2, 2]
+condition_dim: 24
+output_semantics: noise_pred
+
