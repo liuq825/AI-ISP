@@ -1,4 +1,5 @@
-# GPU/高算力环境的完整 Student FP32 训练基线
+# V3 历史单阶段配置；V4 统一使用 v4_量产训练.yaml 阶段运行器
+status: historical_v3_superseded
 seed: 20260804
 device: auto
 patch_sizes: [256, 384]
@@ -11,4 +12,3 @@ gradient_clip: 1.0
 warmup_steps: 5000
 scheduler: cosine
 loss_weights: {raw: 0.55, tone: 0.30, gradient: 0.15}
-

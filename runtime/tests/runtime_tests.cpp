@@ -6,9 +6,33 @@
 
 int main() {
   using namespace ai_isp;
-  assert(SelectProfile(1024, 768)->id == ProfileId::kP0);
-  assert(SelectProfile(960, 540)->compile_height == 544);
-  assert(SelectProfile(540, 960) == nullptr);
+  const auto& profile = GetFixedRyybProfile();
+  assert(profile.valid_width == 1024 && profile.valid_height == 768);
+  AdmissionPolicy policy{"main_ryyb_0", "tele_ryyb_0", RyybCfaPhase::kRyyb,
+                         RyybCfaPhase::kByyr, "model", "quant"};
+  RyybFrameDescriptor frame{};
+  frame.camera = CameraId::kMain;
+  frame.sensor_profile = "main_ryyb_0";
+  frame.raw_width = 2048;
+  frame.raw_height = 1536;
+  frame.crop_width = 2048;
+  frame.crop_height = 1536;
+  frame.row_stride_bytes = 4096;
+  frame.bit_depth = 12;
+  frame.white_level = {4095.0F, 4095.0F, 4095.0F, 4095.0F};
+  frame.model_hash = "model";
+  frame.quant_policy_hash = "quant";
+  assert(ValidateAiAdmission(frame, policy) == Status::kOk);
+  frame.crop_x = 1;
+  assert(ValidateAiAdmission(frame, policy) == Status::kInvalidCfaPhase);
+  frame.crop_x = 0;
+  frame.camera = CameraId::kTele;
+  frame.sensor_profile = "tele_ryyb_0";
+  assert(ValidateAiAdmission(frame, policy) == Status::kInvalidCfaPhase);
+  frame.cfa_phase = RyybCfaPhase::kByyr;
+  assert(ValidateAiAdmission(frame, policy) == Status::kOk);
+  frame.camera = CameraId::kUltrawide;
+  assert(ValidateAiAdmission(frame, policy) == Status::kUnsupportedCamera);
 
   std::array<std::uint16_t, 4 * 8 * 8> input{};
   std::array<std::uint16_t, 4 * 8 * 8> output{};
@@ -31,7 +55,6 @@ int main() {
   assert(trigger.FailImmediately().bypass);
 
   UnavailableNpuExecutor executor;
-  assert(executor.Load(ProfileId::kP0) == Status::kNpuUnavailable);
+  assert(executor.Load() == Status::kNpuUnavailable);
   return 0;
 }
-

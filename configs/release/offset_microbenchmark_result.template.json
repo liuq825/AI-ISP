@@ -1,0 +1,8 @@
+{
+  "compile_succeeded": false,
+  "npu_only": false,
+  "fusion_preserved": false,
+  "symmetric_p95_ms": 0.0,
+  "asymmetric_p95_ms": 0.0,
+  "note": "必须填写商用DDK和麒麟9000双Block实测结果；模板值会使正式QAT固定Offset=0"
+}

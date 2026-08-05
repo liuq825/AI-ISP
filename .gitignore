@@ -18,6 +18,7 @@ artifacts/**/*.pt
 artifacts/**/*.safetensors
 artifacts/**/*.onnx
 artifacts/**/*.om
+artifacts/v4_cpu_smoke/
 
 # 编辑器与系统文件
 .idea/

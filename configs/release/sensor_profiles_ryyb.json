@@ -1,0 +1,9 @@
+{
+  "version": "4.0.0",
+  "release_ready": false,
+  "channel_semantics": ["R", "Yr", "Yb", "B"],
+  "profiles": [
+    {"id": "main_ryyb_0", "camera": "main", "condition_sensor_index": 14, "condition_lens_index": 18, "cfa_pattern": "ryyb", "calibration_status": "engineering_placeholder_pending_sensor_confirmation"},
+    {"id": "tele_ryyb_0", "camera": "tele", "condition_sensor_index": 15, "condition_lens_index": 20, "cfa_pattern": "byyr", "calibration_status": "engineering_placeholder_pending_sensor_confirmation"}
+  ]
+}

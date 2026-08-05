@@ -1,4 +1,5 @@
-# 无 GPU 电脑上的功能闭环配置；不用于宣称量产画质
+# V3 历史冒烟配置；V4 统一使用 v4_cpu_全流程.yaml
+status: historical_v3_superseded
 seed: 20260804
 device: cpu
 patch_size: 32
@@ -12,4 +13,3 @@ gradient_clip: 1.0
 num_workers: 0
 torch_threads: 4
 export_profile_mode: smoke
-

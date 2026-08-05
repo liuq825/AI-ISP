@@ -1,7 +1,7 @@
-# SIDD RAW 数据集数据卡
+# SIDD RAW 数据集数据卡（V4 工程冒烟限定）
 
-> 用途：AI ISP CPU 工程闭环、公开 RAW 预训练与泛化验证。  
-> 限制：SIDD 不能替代目标麒麟手机的 Sensor 标定和 Noisy/Clean 数据。
+> 用途：AI ISP CPU 工程闭环。
+> 限制：所有 SIDD Batch 强制 `smoke_only=true`，不得参与 RYYB 模型选择、画质结论或发布验收。
 
 ## 1. 本地数据清单
 
@@ -42,6 +42,5 @@
 
 - SIDD 来自公开手机，不是项目目标麒麟 9000 手机；Camera、Lens、CFA、噪声、Black/White 和上游 ISP 域均有差异。
 - 当前数据已归一化，不能反推出可靠的目标设备 RAW10/RAW12 Black/White Level。
-- SIDD 可用于验证代码、预训练和泛化，但在最终数据组成中应遵守设计的公开 RAW 占比 `≤10%`。
+- SIDD 只用于验证数据读取、反向传播、剪枝、QAT 和 ONNX 工程链。它不能把 RGGB/BGGR/GRBG/GBRG 数据转化为真实 RYYB 光谱数据；V4 不设任何可进入量产训练的 SIDD 比例。
 - 不允许用 SIDD 的 CPU PSNR/SSIM 宣称麒麟设备的最终画质、30fps、功耗或量产通过。
-

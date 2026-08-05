@@ -1,0 +1,72 @@
+{
+  "report_version": "4.0.0",
+  "date": "2026-08-05",
+  "status": "engineering_passed",
+  "release_ready": false,
+  "environment": {
+    "device": "cpu",
+    "gpu_available": false,
+    "atc_available": false,
+    "target_device_available": false
+  },
+  "dataset": {
+    "name": "SIDD_Training_Subset",
+    "smoke_only": true,
+    "patch_shape": [1, 4, 32, 32]
+  },
+  "pipeline_elapsed_seconds_approx": 38.5,
+  "cpp_runtime": {
+    "compiler": "MSVC 19.42 C++17",
+    "ctest_passed": 1,
+    "ctest_total": 1
+  },
+  "python_tests": {
+    "passed": 47,
+    "failed": 0,
+    "elapsed_seconds": 48.19
+  },
+  "pruning": {
+    "dense_parameters": 660836,
+    "p10": {
+      "parameters": 599812,
+      "parameter_reduction": 0.09234363745316543,
+      "smoke_shape_mac_reduction": 0.0806966041650572,
+      "feature_channels": [16, 32, 56, 128]
+    },
+    "p15": {
+      "parameters": 565420,
+      "parameter_reduction": 0.14438680701414575,
+      "smoke_shape_mac_reduction": 0.09600379644855483,
+      "feature_channels": [16, 32, 56, 120]
+    }
+  },
+  "qat_candidates": [
+    "p10_symmetric_lsq",
+    "p10_asymmetric_lsqplus",
+    "p15_symmetric_lsq",
+    "p15_asymmetric_lsqplus"
+  ],
+  "offset_microbenchmark": {
+    "executed_before_long_training": true,
+    "symmetric_qdq_exported": true,
+    "asymmetric_qdq_exported": true,
+    "target_result_available": false,
+    "formal_qat_activation_offset": false
+  },
+  "engineering_selection": "p10_symmetric_lsq",
+  "onnx": {
+    "contains_explicit_qdq": true,
+    "max_abs_error": 0.0,
+    "single_static_profile": "RYYB_4X3"
+  },
+  "om": {
+    "available": false,
+    "reason": "本机没有目标商用DDK/ATC，未生成占位OM"
+  },
+  "mandatory_pending": [
+    "真实主摄和长焦RYYB完整训练及盲测",
+    "商用DDK Q/DQ适配和ATC编译",
+    "麒麟9000 100% NPU和AI节点6/8/9/10ms",
+    "整条4K30、10000帧、功耗、内存和热稳态"
+  ]
+}

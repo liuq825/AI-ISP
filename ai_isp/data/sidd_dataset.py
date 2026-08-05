@@ -195,4 +195,5 @@ class SiddRawPatchDataset(Dataset[dict[str, torch.Tensor | str]]):
             "condition": condition,
             "scene_name": pair.scene_name,
             "cfa": pair.cfa,
+            "smoke_only": True,
         }

@@ -33,7 +33,9 @@ class ConditionalNAFNetW32Teacher(nn.Module):
         nn.init.zeros_(self.ending.weight)
         nn.init.zeros_(self.ending.bias)
 
-    def forward(self, image: torch.Tensor, condition: torch.Tensor) -> torch.Tensor:
+    def _forward_impl(
+        self, image: torch.Tensor, condition: torch.Tensor
+    ) -> tuple[torch.Tensor, tuple[torch.Tensor, torch.Tensor]]:
         films = self.condition_encoder(condition)
         feature = self.intro(image)
         skips: list[torch.Tensor] = []
@@ -44,7 +46,23 @@ class ConditionalNAFNetW32Teacher(nn.Module):
             skips.append(feature)
             feature = down(feature)
         feature = self.middle(apply_film(feature, films[-1]))
+        middle_feature = feature
         for up, decoder, skip in zip(self.ups, self.decoders, reversed(skips)):
             feature = decoder(up(feature) + skip)
-        return self.ending(feature) * condition[:, 23:24, None, None]
+        output = self.ending(feature) * condition[:, 23:24, None, None]
+        return output, (skips[2], middle_feature)
 
+    def forward(self, image: torch.Tensor, condition: torch.Tensor) -> torch.Tensor:
+        output, _ = self._forward_impl(image, condition)
+        return output
+
+    def forward_with_features(
+        self, image: torch.Tensor, condition: torch.Tensor
+    ) -> tuple[torch.Tensor, tuple[torch.Tensor, torch.Tensor]]:
+        """只供 KD 使用，不改变 Teacher 的部署外前向接口。"""
+
+        return self._forward_impl(image, condition)
+
+    @staticmethod
+    def denoise(image: torch.Tensor, noise_pred: torch.Tensor) -> torch.Tensor:
+        return torch.clamp(image - noise_pred, 0.0, 1.0)

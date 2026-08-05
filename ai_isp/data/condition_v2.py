@@ -89,3 +89,18 @@ def validate_condition_v2(condition: torch.Tensor) -> None:
         if not torch.allclose(group_sum, torch.ones_like(group_sum), atol=1e-6):
             raise ValueError(f"Condition one-hot 组 {start}:{start + 4} 非法")
 
+
+def validate_ryyb_release_condition_v2(condition: torch.Tensor) -> None:
+    """在通用 V2 校验上收紧为 RYYB 主摄/长焦量产组合。"""
+
+    validate_condition_v2(condition)
+    main = condition[..., 10] == 1.0
+    tele = condition[..., 12] == 1.0
+    if not bool((main | tele).all()):
+        raise ValueError("V4 AI RAW Denoise 只允许 main 或 tele Camera")
+    if bool((condition[..., 11] != 0.0).any()) or bool((condition[..., 13] != 0.0).any()):
+        raise ValueError("ultrawide/other Camera 不得进入 AI RAW Denoise")
+    main_mapping = main & (condition[..., 14] == 1.0) & (condition[..., 18] == 1.0)
+    tele_mapping = tele & (condition[..., 15] == 1.0) & (condition[..., 20] == 1.0)
+    if not bool((main_mapping | tele_mapping).all()):
+        raise ValueError("Camera、Sensor Profile 与 Lens Profile 组合不匹配")

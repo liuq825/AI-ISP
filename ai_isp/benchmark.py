@@ -12,7 +12,7 @@ import torch
 from safetensors.torch import load_file
 
 from ai_isp.models.mobile_nafnet import build_mobile_nafnet_w16
-from ai_isp.runtime.profiles import PROFILES
+from ai_isp.runtime.profiles import FIXED_RYYB_PROFILE
 
 
 def benchmark_release_profiles(
@@ -27,10 +27,11 @@ def benchmark_release_profiles(
     torch.set_num_threads(torch_threads)
     model = build_mobile_nafnet_w16().eval()
     model.load_state_dict(load_file(str(weights_path)))
-    condition = torch.rand(1, 24)
-    condition[:, 23] = 1.0
+    condition = torch.zeros(1, 24)
+    condition[:, :10] = 0.5
+    condition[:, (10, 14, 18, 22, 23)] = 1.0
     results: dict[str, object] = {}
-    for profile_id, profile in PROFILES.items():
+    for profile_id, profile in {FIXED_RYYB_PROFILE.profile_id: FIXED_RYYB_PROFILE}.items():
         image = torch.rand(1, 4, profile.compile_height, profile.compile_width)
         with torch.inference_mode():
             for _ in range(warmup):
@@ -64,4 +65,3 @@ def benchmark_release_profiles(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report
-

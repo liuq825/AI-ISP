@@ -1,0 +1,11 @@
+{
+  "version": "4.0.0-engineering",
+  "weights": {"bits": 8, "signed": true, "symmetric": true, "granularity": "per_output_channel", "offset": 0},
+  "activations": {"bits": 8, "signed": true, "granularity": "per_tensor", "default": "symmetric_lsq"},
+  "lsqplus": {"implemented": true, "learnable_scale": true, "learnable_offset": true, "enable_condition": "target_microbenchmark_and_quality_gate"},
+  "offset_microbenchmark": {"must_run_before_long_training": true, "max_p95_regression_ms": 0.1, "max_p95_regression_ratio": 0.03, "failure_policy": "offset_zero"},
+  "film": {"default": "int8", "fp16_npu_island": "conditional_quality_fallback_only", "psnr_trigger_db": 0.03, "saturation_trigger": 0.01, "required_npu_only": true, "required_p95_ms": 8.0},
+  "calibration": {"frames": 4096, "per_camera_minimum": 2048, "dark_ratio_minimum": 0.6, "percentile_candidates": [99.9, 99.95, 99.99, 100.0]},
+  "qat_steps": {"q1": 2000, "q2": 48000, "q3": 10000},
+  "release_ready": false
+}

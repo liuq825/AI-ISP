@@ -1,16 +1,17 @@
 {
-  "schema_version": "3.0.0",
+  "schema_version": "4.0.0",
   "condition_schema": "ConditionSchemaV2",
-  "artifact_layout": "static_3",
+  "artifact_layout": "single_static_ryyb_4x3",
   "profiles": [
-    {"id": "P0", "valid_width": 1024, "valid_height": 768, "compile_width": 1024, "compile_height": 768},
-    {"id": "P1", "valid_width": 960, "valid_height": 540, "compile_width": 960, "compile_height": 544, "pad_bottom": 4},
-    {"id": "P2", "valid_width": 960, "valid_height": 640, "compile_width": 960, "compile_height": 640}
+    {"id": "RYYB_4X3", "raw_width": 2048, "raw_height": 1536, "valid_width": 1024, "valid_height": 768, "compile_width": 1024, "compile_height": 768}
   ],
+  "allowed_cameras": ["main", "tele"],
+  "bypass_cameras": ["ultrawide"],
+  "channel_semantics": ["R", "Yr", "Yb", "B"],
+  "latency_budget_ms": {"p50": 6.0, "p95": 8.0, "p99": 9.0, "hard_timeout": 10.0},
   "trigger": {
     "enter": {"dark_score": 0.70, "iso": 1600, "scene_ev": -1.5, "noise_level": 0.08, "consecutive_frames": 3},
     "exit": {"dark_score": 0.45, "iso": 1200, "scene_ev": -1.0, "noise_level": 0.06, "consecutive_frames": 10},
     "ramp": [0.20, 0.40, 0.60, 0.80, 1.00]
   }
 }
-

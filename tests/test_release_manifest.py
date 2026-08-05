@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from ai_isp.runtime.profiles import PROFILES
+from ai_isp.runtime.profiles import FIXED_RYYB_PROFILE
 
 
 def _sha256(path: Path) -> str:
@@ -25,21 +25,28 @@ def test_condition_and_profile_config_match_code() -> None:
     assert condition["shape"] == [1, 24]
     assert [field["index"] for field in condition["fields"]] == list(range(24))
     runtime = json.loads(Path("configs/runtime/dark_preview_profiles.json").read_text(encoding="utf-8"))
-    for item in runtime["profiles"]:
-        profile = PROFILES[item["id"]]
-        assert (item["valid_width"], item["valid_height"]) == (profile.valid_width, profile.valid_height)
-        assert (item["compile_width"], item["compile_height"]) == (profile.compile_width, profile.compile_height)
+    assert len(runtime["profiles"]) == 1
+    item = runtime["profiles"][0]
+    profile = FIXED_RYYB_PROFILE
+    assert item["id"] == profile.profile_id
+    assert (item["valid_width"], item["valid_height"]) == (profile.valid_width, profile.valid_height)
+    assert (item["raw_width"], item["raw_height"]) == (profile.raw_width, profile.raw_height)
 
 
 def test_engineering_manifest_is_safe_and_hashes_local_artifacts() -> None:
     manifest = json.loads(Path("artifacts/release/model_manifest.json").read_text(encoding="utf-8"))
     assert manifest["release_ready"] is False
     assert manifest["om"]["available"] is False
+    assert manifest["artifact_layout"] == "single_static_ryyb_4x3"
+    for key in ("condition_schema", "sensor_profiles"):
+        item = manifest[key]
+        assert _sha256(Path(item["path"])) == item["sha256"]
+    quant = manifest["quantization"]
+    assert _sha256(Path(quant["policy"])) == quant["policy_sha256"]
     weights = Path(manifest["weights"]["path"])
     if weights.exists():
         assert _sha256(weights) == manifest["weights"]["sha256"]
-    for item in manifest["onnx"]:
-        path = Path(item["path"])
-        if path.exists():
-            assert _sha256(path) == item["sha256"]
-
+    item = manifest["onnx"]
+    path = Path(item["path"])
+    if path.exists():
+        assert _sha256(path) == item["sha256"]

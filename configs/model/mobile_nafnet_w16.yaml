@@ -1,4 +1,7 @@
-# Tiny Conditional MobileNAFNet-W16 Dark Preview V3 冻结拓扑
+# Conditional MobileNAFNet-W16 Dark Preview V4 Dense 冻结拓扑
+camera_scope: [main_ryyb, tele_ryyb]
+fixed_input_shape: [1, 4, 768, 1024]
+channel_semantics: [R, Yr, Yb, B]
 image_channels: 4
 base_width: 16
 encoder_blocks: [2, 2, 4]
@@ -9,4 +12,4 @@ condition_dim: 24
 film_injection: [encoder_stage_2, encoder_stage_3, middle]
 output_semantics: noise_pred
 block: MobileNAFBlock-DW
-
+final_artifact_count: 1

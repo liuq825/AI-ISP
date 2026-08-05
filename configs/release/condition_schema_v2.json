@@ -31,6 +31,11 @@
     {"index": 23, "name": "enhancement_strength", "encoding": "identity"}
   ],
   "one_hot_groups": [[10, 14], [14, 18], [18, 22]],
-  "invalid_policy": "bypass"
+  "invalid_policy": "bypass",
+  "v4_release_constraints": {
+    "allowed_camera_indices": [10, 12],
+    "forbidden_camera_indices": [11, 13],
+    "main_mapping": {"camera": 10, "sensor": 14, "lens": 18},
+    "tele_mapping": {"camera": 12, "sensor": 15, "lens": 20}
+  }
 }
-

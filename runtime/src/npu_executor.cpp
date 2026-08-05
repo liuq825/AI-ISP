@@ -2,7 +2,7 @@
 
 namespace ai_isp {
 
-Status UnavailableNpuExecutor::Load(ProfileId /*profile*/) {
+Status UnavailableNpuExecutor::Load() {
   return Status::kNpuUnavailable;
 }
 
@@ -15,4 +15,3 @@ Status UnavailableNpuExecutor::Execute(const float* /*packed_input*/,
 }
 
 }  // namespace ai_isp
-

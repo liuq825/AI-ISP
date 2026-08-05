@@ -98,25 +98,3 @@ def _通道常量(
     if isinstance(reference, torch.Tensor):
         return torch.as_tensor(values, dtype=reference.dtype, device=reference.device).reshape(shape)
     return np.asarray(values, dtype=reference.dtype).reshape(shape)
-
-
-def pad_p1(packed: torch.Tensor, target_height: int = 544) -> torch.Tensor:
-    """将 P1 有效高度 540 以边缘复制方式补到静态编译高度 544。"""
-
-    if packed.shape[-2] > target_height:
-        raise ValueError("输入高度大于 P1 编译高度")
-    missing = target_height - packed.shape[-2]
-    if missing == 0:
-        return packed
-    if missing != 4:
-        raise ValueError(f"P1 只允许固定补 4 行，当前需要 {missing} 行")
-    return torch.cat((packed, packed[..., -1:, :].expand(*packed.shape[:-2], missing, packed.shape[-1])), dim=-2)
-
-
-def crop_p1(packed: torch.Tensor, valid_height: int = 540) -> torch.Tensor:
-    """在噪声预测回写前裁回 P1 的 540 行有效区。"""
-
-    if packed.shape[-2] < valid_height:
-        raise ValueError("输入高度小于 P1 有效高度")
-    return packed[..., :valid_height, :]
-
