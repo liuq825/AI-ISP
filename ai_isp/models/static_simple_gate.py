@@ -14,7 +14,9 @@ class StaticSimpleGate(nn.Module):
         if channels <= 0:
             raise ValueError("channels 必须为正整数")
         self.channels = int(channels)
-        # QAT 转换器会替换该 Identity；Dense/ONNX 基线不增加任何算子。
+        # V6 QAT 转换器为两分支注入共享 Per-tensor 输入量化器。
+        self.left_quant: nn.Module = nn.Identity()
+        self.right_quant: nn.Module = nn.Identity()
         self.output_quant: nn.Module = nn.Identity()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -22,4 +24,6 @@ class StaticSimpleGate(nn.Module):
             raise ValueError(f"StaticSimpleGate 期望 {self.channels * 2} 通道，收到 {x.shape[1]}")
         left = torch.narrow(x, 1, 0, self.channels)
         right = torch.narrow(x, 1, self.channels, self.channels)
+        left = self.left_quant(left)
+        right = self.right_quant(right)
         return self.output_quant(left * right)

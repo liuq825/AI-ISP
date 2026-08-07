@@ -78,12 +78,63 @@ def estimate_macs(model: nn.Module, image: torch.Tensor, condition: torch.Tensor
     return int(total)
 
 
+def estimate_macs_at_shape(
+    model: nn.Module,
+    example_image: torch.Tensor,
+    condition: torch.Tensor,
+    target_height: int = 768,
+    target_width: int = 1024,
+) -> int:
+    """以小图 Hook 捕获层级比例，外推发布 Shape 的 Conv/Linear MAC。"""
+
+    source_height, source_width = example_image.shape[-2:]
+    if target_height % source_height or target_width % source_width:
+        raise ValueError("目标 Shape 必须是示例 Shape 的整数倍，避免 MAC 口径漂移")
+    height_ratio, width_ratio = target_height // source_height, target_width // source_width
+    total = 0
+    hooks = []
+
+    def conv_hook(module: nn.Conv2d, inputs, output) -> None:
+        nonlocal total
+        batch, output_channels, output_height, output_width = output.shape
+        kernel_height, kernel_width = module.kernel_size
+        mac_per_output = (module.in_channels // module.groups) * kernel_height * kernel_width
+        total += (
+            batch
+            * output_channels
+            * output_height
+            * height_ratio
+            * output_width
+            * width_ratio
+            * mac_per_output
+        )
+
+    def linear_hook(module: nn.Linear, inputs, output) -> None:
+        nonlocal total
+        total += output.numel() * module.in_features
+
+    for module in model.modules():
+        if isinstance(module, nn.Conv2d):
+            hooks.append(module.register_forward_hook(conv_hook))
+        elif isinstance(module, nn.Linear):
+            hooks.append(module.register_forward_hook(linear_hook))
+    try:
+        with torch.no_grad():
+            model(example_image, condition)
+    finally:
+        for hook in hooks:
+            hook.remove()
+    return int(total)
+
+
 class NAFNetPruningValidator:
-    """验证并执行满足 Gate、DWConv、Skip、FiLM 与 8 通道约束的剪枝。"""
+    """验证并执行满足 Gate、DWConv、Skip、FiLM 与 16 通道约束的剪枝。"""
 
-    minimum_widths = (16, 24, 48, 96)
+    minimum_widths = (16, 32, 48, 96)
 
-    def __init__(self, round_to: int = 8) -> None:
+    def __init__(self, round_to: int = 16) -> None:
+        if round_to != 16:
+            raise ValueError("V6.1 结构化剪枝只允许 round_to=16")
         self.round_to = round_to
 
     def build_dependency_graph(
@@ -116,6 +167,10 @@ class NAFNetPruningValidator:
                 raise ValueError("Gate 展开通道必须为偶数")
             module.spatial_gate.channels = module.spatial_expand.out_channels // 2
             module.channel_gate.channels = module.channel_expand.out_channels // 2
+        if isinstance(model, MobileNAFNetW16):
+            model.film_stage2.channels = model.downs[0].out_channels
+            model.film_stage3.channels = model.downs[1].out_channels
+            model.film_middle.channels = model.downs[2].out_channels
 
     @staticmethod
     def _blocks_for_stage(model: MobileNAFNetW16, stage_index: int) -> list[MobileNAFBlockDW]:
@@ -176,7 +231,9 @@ class NAFNetPruningValidator:
         group = graph.get_pruning_group(root, tp.prune_conv_out_channels, idxs=sorted(indices))
         self.validate_group(graph, group)
         group.prune()
-        # Feature 宽度减少 8 后，每个 Gate 的两半各减少 8，恢复固定 2C 结构。
+        # 根 Stage 已变化，必须先同步 FiLM/Gate 静态属性，后续依赖图才能再次前向。
+        self.update_static_attributes(model)
+        # Feature 宽度减少 16 后，每个 Gate 的两半各减少 16，恢复固定 2C 结构。
         for block in self._blocks_for_stage(model, stage_index):
             self._prune_hidden_pair(model, block, "spatial", len(indices), example_inputs)
             self._prune_hidden_pair(model, block, "channel", len(indices), example_inputs)
@@ -226,7 +283,7 @@ class NAFNetPruningValidator:
 
 
 class StructuredMobileNAFPruner:
-    """按 Stage 重要度渐进生成 P10/P15 的可重建结构化模型。"""
+    """按 Stage 重要度渐进生成 V6.1 固定 16 对齐候选。"""
 
     def __init__(self, validator: NAFNetPruningValidator | None = None) -> None:
         self.validator = validator or NAFNetPruningValidator()
@@ -278,7 +335,7 @@ class StructuredMobileNAFPruner:
         calibration_batches: Iterable[tuple[torch.Tensor, torch.Tensor]],
         target_ratio: float,
     ) -> PruningReport:
-        """裁到目标下限；若一个8通道组导致略微越界，报告真实比例而不伪造名称。"""
+        """裁到目标下限；若一个16通道组导致略微越界，报告真实比例而不伪造名称。"""
 
         if not 0.0 < target_ratio < 0.5:
             raise ValueError("目标剪枝比例必须位于 (0,0.5)")
@@ -333,6 +390,62 @@ class StructuredMobileNAFPruner:
         feature_channels = (model.intro.out_channels, *(layer.out_channels for layer in model.downs))
         return PruningReport(
             target_ratio=target_ratio,
+            parameter_count_before=before_params,
+            parameter_count_after=after_params,
+            parameter_reduction=1.0 - after_params / before_params,
+            macs_before=before_macs,
+            macs_after=after_macs,
+            mac_reduction=1.0 - after_macs / before_macs,
+            feature_channels=tuple(int(value) for value in feature_channels),
+            rounds=tuple(rounds),
+        )
+
+    def prune_to_feature_channels(
+        self,
+        model: MobileNAFNetW16,
+        example_inputs: tuple[torch.Tensor, torch.Tensor],
+        calibration_batches: Iterable[tuple[torch.Tensor, torch.Tensor]],
+        target_channels: tuple[int, int, int, int],
+    ) -> PruningReport:
+        """真实裁剪到 P10-16/P18-16/P36-16 的精确发布拓扑。"""
+
+        if len(target_channels) != 4 or any(value <= 0 or value % 16 for value in target_channels):
+            raise ValueError("目标 Feature Channels 必须包含四级正 16 对齐宽度")
+        current = (model.intro.out_channels, *(layer.out_channels for layer in model.downs))
+        if target_channels[0] != current[0]:
+            raise ValueError("V6.1 Intro/Stage1 不允许主动剪枝")
+        for index, (target, width, minimum) in enumerate(zip(target_channels, current, self.validator.minimum_widths)):
+            if target > width or target < minimum:
+                raise ValueError(f"Stage{index} 目标宽度 {target} 超出 [{minimum},{width}]")
+        batches = list(calibration_batches)
+        if not batches:
+            raise ValueError("重要度计算至少需要一个校准 Batch")
+        image, condition = example_inputs
+        before_params = _count_parameters(model)
+        before_macs = estimate_macs(model, image, condition)
+        rounds: list[dict[str, object]] = []
+        for stage_index in (1, 2, 3):
+            while model.downs[stage_index - 1].out_channels > target_channels[stage_index]:
+                width_before = model.downs[stage_index - 1].out_channels
+                scores = self._stage_scores(model, stage_index, batches)
+                indices = torch.argsort(scores)[: self.validator.round_to].tolist()
+                self.validator.prune_stage_channels(model, stage_index, indices, example_inputs)
+                self.validator.assert_valid(model, image, condition)
+                rounds.append({
+                    "round": len(rounds) + 1,
+                    "stage": stage_index,
+                    "removed_indices": sorted(indices),
+                    "width_before": width_before,
+                    "width_after": model.downs[stage_index - 1].out_channels,
+                    "parameter_reduction": 1.0 - _count_parameters(model) / before_params,
+                })
+        feature_channels = (model.intro.out_channels, *(layer.out_channels for layer in model.downs))
+        if tuple(feature_channels) != target_channels:
+            raise RuntimeError(f"剪枝结果 {feature_channels} 未达到目标 {target_channels}")
+        after_params = _count_parameters(model)
+        after_macs = estimate_macs(model, image, condition)
+        return PruningReport(
+            target_ratio=1.0 - after_params / before_params,
             parameter_count_before=before_params,
             parameter_count_after=after_params,
             parameter_reduction=1.0 - after_params / before_params,

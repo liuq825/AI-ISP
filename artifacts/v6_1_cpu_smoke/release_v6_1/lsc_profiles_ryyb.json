@@ -1,0 +1,8 @@
+{
+  "version": "6.1.0-engineering",
+  "release_ready": false,
+  "profiles": [
+    {"sensor_profile": "main_ryyb_0", "profile_id": "main_lsc_pending_calibration", "status": "target_calibration_required"},
+    {"sensor_profile": "tele_ryyb_0", "profile_id": "tele_lsc_pending_calibration", "status": "target_calibration_required"}
+  ]
+}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
 
 import torch
 import torch.nn.functional as functional
@@ -75,6 +76,131 @@ class DarkPreviewLoss(nn.Module):
         gradient = gradient_loss(output, target, condition)
         total = self.raw_weight * raw + self.tone_weight * tone + self.gradient_weight * gradient
         return {"total": total, "raw": raw, "tone": tone, "gradient": gradient}
+
+
+def _attention_map(feature: torch.Tensor) -> torch.Tensor:
+    spatial = feature.abs().mean(dim=1, keepdim=True)
+    return spatial / spatial.sum(dim=(-2, -1), keepdim=True).clamp_min(1e-8)
+
+
+def attention_distillation_loss(
+    student_features: tuple[torch.Tensor, torch.Tensor],
+    teacher_features: tuple[torch.Tensor, torch.Tensor],
+) -> torch.Tensor:
+    """Stage3/Middle 通道绝对值均值空间图归一化后等权 L1。"""
+
+    if len(student_features) != 2 or len(teacher_features) != 2:
+        raise ValueError("Attention KD 必须同时提供 Stage3 和 Middle 特征")
+    losses = []
+    for student, teacher in zip(student_features, teacher_features):
+        if student.shape[-2:] != teacher.shape[-2:]:
+            raise ValueError("Attention KD 特征空间尺寸不一致")
+        losses.append(functional.l1_loss(_attention_map(student), _attention_map(teacher)))
+    return torch.stack(losses).mean()
+
+
+def temporal_consistency_loss(
+    clean: torch.Tensor,
+    noisy_1: torch.Tensor,
+    noise_pred_1: torch.Tensor,
+    noisy_2: torch.Tensor,
+    noise_pred_2: torch.Tensor,
+    valid_mask: torch.Tensor | None = None,
+    motion_mask: torch.Tensor | None = None,
+    saturation_threshold: float = 0.98,
+) -> torch.Tensor:
+    """按 ``y_i=clip(z_i-N_i)`` 计算带高光/运动/有效区屏蔽的时序损失。"""
+
+    tensors = (clean, noisy_1, noise_pred_1, noisy_2, noise_pred_2)
+    if any(item.shape != clean.shape for item in tensors[1:]):
+        raise ValueError("Temporal 输入、预测和 Clean 必须同 Shape")
+    if not 0.0 < saturation_threshold <= 1.0:
+        raise ValueError("saturation_threshold 必须位于 (0,1]")
+    y_1 = torch.clamp(noisy_1 - noise_pred_1, 0.0, 1.0)
+    y_2 = torch.clamp(noisy_2 - noise_pred_2, 0.0, 1.0)
+    mask = (
+        (clean < saturation_threshold)
+        & (noisy_1 < saturation_threshold)
+        & (noisy_2 < saturation_threshold)
+    ).to(clean.dtype)
+    for external in (valid_mask, motion_mask):
+        if external is not None:
+            try:
+                mask = mask * torch.broadcast_to(external.to(device=clean.device, dtype=clean.dtype), clean.shape)
+            except RuntimeError as error:
+                raise ValueError("Temporal Mask 无法广播到 RAW Shape") from error
+    return (mask * (y_1 - y_2).abs()).sum() / mask.sum().clamp_min(1.0)
+
+
+def gate_scale_alignment_loss(scale_pairs: list[tuple[torch.Tensor, torch.Tensor]]) -> torch.Tensor:
+    """SimpleGate 两分支 Per-tensor Scale 的对数距离约束。"""
+
+    if not scale_pairs:
+        return torch.tensor(0.0)
+    values = [
+        (torch.log(left.clamp_min(1e-8)) - torch.log(right.clamp_min(1e-8))).abs().mean()
+        for left, right in scale_pairs
+    ]
+    return torch.stack(values).mean()
+
+
+@dataclass(frozen=True)
+class StudentLossWeights:
+    raw: float = 1.0
+    tone: float = 0.5
+    gradient: float = 0.1
+    feature_kd: float = 0.1
+    attention_kd: float = 0.05
+    temporal: float = 0.05
+    gate: float = 0.01
+
+
+class StudentCompositeLoss(nn.Module):
+    """V6.1 冻结的 Student/KD/QAT 完整损失组合。"""
+
+    def __init__(self, weights: StudentLossWeights | None = None) -> None:
+        super().__init__()
+        self.weights = weights or StudentLossWeights()
+
+    def forward(
+        self,
+        output: torch.Tensor,
+        target: torch.Tensor,
+        condition: torch.Tensor | None = None,
+        *,
+        feature_kd: torch.Tensor | None = None,
+        attention_kd: torch.Tensor | None = None,
+        temporal: torch.Tensor | None = None,
+        gate: torch.Tensor | None = None,
+    ) -> dict[str, torch.Tensor]:
+        raw = raw_charbonnier_loss(output, target)
+        tone = tone_loss(output, target, condition)
+        gradient = gradient_loss(output, target, condition)
+        zero = output.new_tensor(0.0)
+        feature_kd = zero if feature_kd is None else feature_kd
+        attention_kd = zero if attention_kd is None else attention_kd
+        temporal = zero if temporal is None else temporal
+        gate = zero if gate is None else gate
+        weights = self.weights
+        total = (
+            weights.raw * raw
+            + weights.tone * tone
+            + weights.gradient * gradient
+            + weights.feature_kd * feature_kd
+            + weights.attention_kd * attention_kd
+            + weights.temporal * temporal
+            + weights.gate * gate
+        )
+        return {
+            "total": total,
+            "raw": raw,
+            "tone": tone,
+            "gradient": gradient,
+            "feature_kd": feature_kd,
+            "attention_kd": attention_kd,
+            "temporal": temporal,
+            "gate": gate,
+        }
 
 
 def raw_psnr(output: torch.Tensor, target: torch.Tensor) -> float:

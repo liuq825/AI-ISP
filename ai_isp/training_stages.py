@@ -17,7 +17,13 @@ import torch.nn.functional as functional
 from torch import nn
 from safetensors.torch import save_file
 
-from ai_isp.losses.dark_preview_losses import DarkPreviewLoss, raw_psnr
+from ai_isp.losses.dark_preview_losses import (
+    DarkPreviewLoss,
+    StudentCompositeLoss,
+    attention_distillation_loss,
+    raw_psnr,
+    temporal_consistency_loss,
+)
 
 
 @dataclass(frozen=True)
@@ -273,20 +279,40 @@ class FeatureDistillationAdapters(nn.Module):
     def _rms_normalize(value: torch.Tensor) -> torch.Tensor:
         return value / value.square().mean(dim=(-2, -1), keepdim=True).add(1e-8).sqrt()
 
-    def loss(
+    def align(
         self,
         student_features: tuple[torch.Tensor, torch.Tensor],
         teacher_features: tuple[torch.Tensor, torch.Tensor],
-    ) -> torch.Tensor:
+    ) -> tuple[tuple[torch.Tensor, torch.Tensor], tuple[torch.Tensor, torch.Tensor]]:
         stage3 = self.stage3(student_features[0])
         middle = functional.avg_pool2d(self.middle(student_features[1]), kernel_size=2, stride=2)
         if stage3.shape[-2:] != teacher_features[0].shape[-2:]:
             raise ValueError("Stage3 KD 特征空间尺寸不一致")
         if middle.shape[-2:] != teacher_features[1].shape[-2:]:
             raise ValueError("Middle KD 只允许固定 2× Average Pool 对齐")
-        return functional.l1_loss(self._rms_normalize(stage3), self._rms_normalize(teacher_features[0])) + functional.l1_loss(
-            self._rms_normalize(middle), self._rms_normalize(teacher_features[1])
+        return (stage3, middle), teacher_features
+
+    def loss(
+        self,
+        student_features: tuple[torch.Tensor, torch.Tensor],
+        teacher_features: tuple[torch.Tensor, torch.Tensor],
+    ) -> torch.Tensor:
+        student_aligned, teacher_aligned = self.align(student_features, teacher_features)
+        stage3 = functional.l1_loss(
+            self._rms_normalize(student_aligned[0]), self._rms_normalize(teacher_aligned[0])
         )
+        middle = functional.l1_loss(
+            self._rms_normalize(student_aligned[1]), self._rms_normalize(teacher_aligned[1])
+        )
+        return 0.5 * (stage3 + middle)
+
+    def attention_loss(
+        self,
+        student_features: tuple[torch.Tensor, torch.Tensor],
+        teacher_features: tuple[torch.Tensor, torch.Tensor],
+    ) -> torch.Tensor:
+        student_aligned, teacher_aligned = self.align(student_features, teacher_features)
+        return attention_distillation_loss(student_aligned, teacher_aligned)
 
 
 def train_distillation_stage(
@@ -316,7 +342,7 @@ def train_distillation_stage(
         start_step = load_training_checkpoint(
             config.resume_from, student, optimizer, scaler, config, {"feature_adapters": adapters}
         )
-    criterion = DarkPreviewLoss(raw_weight=0.50, tone_weight=0.25, gradient_weight=0.15)
+    criterion = StudentCompositeLoss()
     if device.type == "cuda":
         torch.cuda.reset_peak_memory_stats(device)
     iterator = iter(loader)
@@ -341,9 +367,26 @@ def train_distillation_stage(
         with _autocast(device, config.student_amp):
             noise_pred, student_features = student.forward_with_features(noisy, condition)
             output = _denoise(student, noisy, noise_pred)
-            losses = criterion(output, clean, condition)
             feature_kd = adapters.loss(student_features, teacher_features)
-            total = losses["total"] + 0.10 * feature_kd
+            attention_kd = adapters.attention_loss(student_features, teacher_features)
+            residual_sigma = (noisy - clean).flatten(1).std(dim=1, keepdim=True).clamp_min(1e-4)
+            residual_sigma = residual_sigma[:, :, None, None]
+            temporal_1 = (clean + torch.randn_like(clean) * residual_sigma).clamp(0.0, 1.0)
+            temporal_2 = (clean + torch.randn_like(clean) * residual_sigma).clamp(0.0, 1.0)
+            temporal_pred_1 = student(temporal_1, condition)
+            temporal_pred_2 = student(temporal_2, condition)
+            temporal = temporal_consistency_loss(
+                clean, temporal_1, temporal_pred_1, temporal_2, temporal_pred_2
+            )
+            losses = criterion(
+                output,
+                clean,
+                condition,
+                feature_kd=feature_kd,
+                attention_kd=attention_kd,
+                temporal=temporal,
+            )
+            total = losses["total"]
             scaled_loss = total / config.accumulation_steps
         scaler.scale(scaled_loss).backward()
         update = (step + 1) % config.accumulation_steps == 0 or step + 1 == config.steps
@@ -359,6 +402,8 @@ def train_distillation_stage(
             "step": step + 1,
             "loss_total": float(total.detach()),
             "loss_feature_kd": float(feature_kd.detach()),
+            "loss_attention_kd": float(attention_kd.detach()),
+            "loss_temporal": float(temporal.detach()),
             "raw_psnr": score,
             "gradient_norm": gradient_norm,
             "updated": int(update),

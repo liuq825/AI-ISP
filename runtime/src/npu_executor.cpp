@@ -14,4 +14,12 @@ Status UnavailableNpuExecutor::Execute(const float* /*packed_input*/,
   return Status::kNpuUnavailable;
 }
 
+Status UnavailablePostProcessExecutor::Execute(const void* /*packed_fp16*/,
+                                               const void* /*noise_fp16*/,
+                                               RyybCfaPhase /*phase*/,
+                                               int /*output_dmabuf_fd*/,
+                                               std::uint64_t* /*consumer_fence*/) {
+  return Status::kNpuUnavailable;
+}
+
 }  // namespace ai_isp

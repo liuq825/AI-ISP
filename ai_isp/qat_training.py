@@ -7,14 +7,20 @@ import hashlib
 import json
 import random
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 import torch
 import numpy as np
 from torch import nn
 from safetensors.torch import save_file
 
-from ai_isp.losses.dark_preview_losses import DarkPreviewLoss, raw_psnr
+from ai_isp.losses.dark_preview_losses import (
+    StudentCompositeLoss,
+    gate_scale_alignment_loss,
+    raw_psnr,
+    temporal_consistency_loss,
+)
+from ai_isp.models.static_simple_gate import StaticSimpleGate
 from ai_isp.quantization.lsqplus_qat import (
     QatPolicy,
     audit_film_quantization,
@@ -42,12 +48,19 @@ class QatTrainingConfig:
     seed: int = 20260804
     checkpoint_interval: int = 1000
     resume_from: str | None = None
+    run_through_phase: str = "q3"
+
+    def __post_init__(self) -> None:
+        if self.run_through_phase not in ("q1", "q2", "q3"):
+            raise ValueError("run_through_phase 只允许 q1/q2/q3")
 
 
 def _config_hash(config: QatTrainingConfig) -> str:
     values = asdict(config)
     values.pop("output_dir", None)
     values.pop("resume_from", None)
+    # 执行到哪个边界不改变 Q1 Checkpoint 的训练数学，允许候选探针获胜后续跑 Q2/Q3。
+    values.pop("run_through_phase", None)
     payload = json.dumps(values, ensure_ascii=False, sort_keys=True).encode("utf-8")
     return hashlib.sha256(payload).hexdigest()
 
@@ -70,14 +83,31 @@ def _next_batch(iterator, loader):
 
 
 def _parameter_groups(model: nn.Module, quant_lr: float, weight_lr: float):
-    quant_ids = {id(parameter) for _, quantizer in iter_quantizers(model) for parameter in quantizer.parameters()}
-    quant = [parameter for parameter in model.parameters() if parameter.requires_grad and id(parameter) in quant_ids]
+    quantizers = list(iter_quantizers(model))
+    quant_ids = {id(parameter) for _, quantizer in quantizers for parameter in quantizer.parameters()}
+    scale_ids = {id(quantizer.log_scale) for _, quantizer in quantizers}
+    scales = [
+        parameter for parameter in model.parameters()
+        if parameter.requires_grad and id(parameter) in scale_ids
+    ]
     weights = [parameter for parameter in model.parameters() if parameter.requires_grad and id(parameter) not in quant_ids]
     groups = []
     if weights:
         groups.append({"params": weights, "lr": weight_lr, "name": "network_weights"})
-    if quant:
-        groups.append({"params": quant, "lr": quant_lr, "name": "quant_parameters"})
+    if scales:
+        groups.append({"params": scales, "lr": quant_lr, "name": "quant_scales"})
+    # LSQ+ offset lives in the dequantized value domain. Giving it the same
+    # absolute Adam LR as log(scale) can shift a narrow activation grid by
+    # several percent in one step. Scale its LR to the current quantization
+    # step so the update is measured in grid units.
+    for name, quantizer in quantizers:
+        if quantizer.offset.requires_grad:
+            offset_lr = quant_lr * max(float(quantizer.scale.detach().float().mean()), 1e-6)
+            groups.append({
+                "params": [quantizer.offset],
+                "lr": offset_lr,
+                "name": f"quant_offset:{name}",
+            })
     if not groups:
         raise RuntimeError("当前 QAT Phase 没有可训练参数")
     return groups
@@ -110,7 +140,7 @@ def _run_phase(
     optimizer = torch.optim.AdamW(groups, weight_decay=config.weight_decay)
     if optimizer_state is not None:
         optimizer.load_state_dict(optimizer_state)
-    criterion = DarkPreviewLoss(raw_weight=0.50, tone_weight=0.25, gradient_weight=0.15)
+    criterion = StudentCompositeLoss()
     history = []
     iterator = iter(loader)
     for step in range(start_step, steps):
@@ -122,13 +152,36 @@ def _run_phase(
         optimizer.zero_grad(set_to_none=True)
         noise_pred, student_features = model.forward_with_features(noisy, condition)
         output = model.denoise(noisy, noise_pred)
-        losses = criterion(output, clean, condition)
         feature_kd = output.new_tensor(0.0)
+        attention_kd = output.new_tensor(0.0)
         if teacher is not None and adapters is not None:
             with torch.no_grad():
                 _, teacher_features = teacher.forward_with_features(noisy, condition)
-            feature_kd = adapters.loss(student_features, tuple(item.detach() for item in teacher_features))
-        total = losses["total"] + 0.10 * feature_kd
+            teacher_features = tuple(item.detach() for item in teacher_features)
+            feature_kd = adapters.loss(student_features, teacher_features)
+            attention_kd = adapters.attention_loss(student_features, teacher_features)
+        residual_sigma = (noisy - clean).flatten(1).std(dim=1, keepdim=True).clamp_min(1e-4)
+        residual_sigma = residual_sigma[:, :, None, None]
+        temporal_1 = (clean + torch.randn_like(clean) * residual_sigma).clamp(0.0, 1.0)
+        temporal_2 = (clean + torch.randn_like(clean) * residual_sigma).clamp(0.0, 1.0)
+        temporal_pred_1 = model(temporal_1, condition)
+        temporal_pred_2 = model(temporal_2, condition)
+        temporal = temporal_consistency_loss(clean, temporal_1, temporal_pred_1, temporal_2, temporal_pred_2)
+        scale_pairs = []
+        for module in model.modules():
+            if isinstance(module, StaticSimpleGate) and hasattr(module.left_quant, "scale"):
+                scale_pairs.append((module.left_quant.scale, module.right_quant.scale))
+        gate = gate_scale_alignment_loss(scale_pairs).to(output.device)
+        losses = criterion(
+            output,
+            clean,
+            condition,
+            feature_kd=feature_kd,
+            attention_kd=attention_kd,
+            temporal=temporal,
+            gate=gate,
+        )
+        total = losses["total"]
         total.backward()
         gradient_norm = float(torch.nn.utils.clip_grad_norm_(
             [parameter for group in groups for parameter in group["params"]], config.gradient_clip
@@ -139,6 +192,9 @@ def _run_phase(
             "step": step + 1,
             "loss_total": float(total.detach()),
             "loss_feature_kd": float(feature_kd.detach()),
+            "loss_attention_kd": float(attention_kd.detach()),
+            "loss_temporal": float(temporal.detach()),
+            "loss_gate": float(gate.detach()),
             "raw_psnr": raw_psnr(output, clean),
             "gradient_norm": gradient_norm,
         })
@@ -163,7 +219,7 @@ def _save_qat_checkpoint(
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     torch.save({
-        "format": "ai_isp_qat_checkpoint_v4",
+        "format": "ai_isp_qat_checkpoint_v6_1",
         "config_hash": _config_hash(config),
         "policy": asdict(policy),
         "phase": phase,
@@ -178,7 +234,10 @@ def _save_qat_checkpoint(
 def train_qat(
     fp32_model: nn.Module,
     loader,
-    calibration_batches: Iterable[tuple[torch.Tensor, torch.Tensor]],
+    calibration_batches: (
+        Iterable[tuple[torch.Tensor, torch.Tensor]]
+        | Callable[[], Iterable[tuple[torch.Tensor, torch.Tensor]]]
+    ),
     policy: QatPolicy,
     config: QatTrainingConfig,
     teacher: nn.Module | None = None,
@@ -192,7 +251,10 @@ def train_qat(
     output_dir = Path(config.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     model = prepare_qat_model(fp32_model, policy).to(device)
-    calibration_iterator = iter(calibration_batches)
+    calibration_factory = calibration_batches if callable(calibration_batches) else None
+    calibration_iterator = iter(
+        calibration_factory() if calibration_factory is not None else calibration_batches
+    )
     try:
         first_image, first_condition = next(calibration_iterator)
     except StopIteration as error:
@@ -209,8 +271,8 @@ def train_qat(
     resume_payload = None
     if config.resume_from:
         resume_payload = torch.load(Path(config.resume_from), map_location="cpu", weights_only=False)
-        if resume_payload.get("format") != "ai_isp_qat_checkpoint_v4":
-            raise ValueError("不是 V4 QAT Checkpoint")
+        if resume_payload.get("format") != "ai_isp_qat_checkpoint_v6_1":
+            raise ValueError("不是 V6.1 QAT Checkpoint")
         if resume_payload.get("config_hash") != _config_hash(config):
             raise ValueError("QAT Checkpoint 配置 Hash 不一致")
         if resume_payload.get("policy") != asdict(policy):
@@ -222,15 +284,26 @@ def train_qat(
             adapters.load_state_dict(resume_payload["adapters"])
         q0_report = resume_payload["q0"]
     else:
-        def device_calibration_batches():
-            # 仅保留首批做 Q3 等价性检查，其余校准数据流式送入，避免 4096 帧常驻内存。
-            yield reference_image, reference_condition
-            for image, condition in calibration_iterator:
+        def device_calibration_batches(iterator):
+            for image, condition in iterator:
                 yield image.to(device).float(), condition.to(device).float()
 
-        q0_report = calibrate_qat_model(model, device_calibration_batches())
+        if calibration_factory is None:
+            # Backward-compatible one-shot iterable: preserve the consumed
+            # reference frame and stream the rest without retaining a dataset.
+            def one_shot():
+                yield reference_image, reference_condition
+                yield from device_calibration_batches(calibration_iterator)
 
-    phase_specs = (("q1", config.q1_steps), ("q2", config.q2_steps), ("q3", config.q3_steps))
+            q0_report = calibrate_qat_model(model, one_shot())
+        else:
+            q0_report = calibrate_qat_model(
+                model, device_calibration_batches(iter(calibration_factory()))
+            )
+
+    all_phase_specs = (("q1", config.q1_steps), ("q2", config.q2_steps), ("q3", config.q3_steps))
+    phase_limit = ("q1", "q2", "q3").index(config.run_through_phase)
+    phase_specs = all_phase_specs[: phase_limit + 1]
     phase_names = [name for name, _ in phase_specs]
     resume_phase = resume_payload.get("phase") if resume_payload else None
     if resume_phase is not None and resume_phase not in phase_names:
@@ -282,11 +355,12 @@ def train_qat(
         "qat_weights": str(qat_weights_path),
         "q0": q0_report,
         "q3_freeze_max_abs_drift": freeze_drift,
+        "run_through_phase": config.run_through_phase,
         "history": history,
         "quantizers": audit_qat_model(model),
         "film_audit": audit_film_quantization(fp32_model, model),
         "limitations": [
-            "本机 QAT 只验证算法链路；LSQ 与 LSQ+ 的发布选择必须使用真实 RYYB 数据",
+            "V6.1 发布策略固定为 LSQ+；本机 QAT 只验证算法链路，仍需真实 RYYB 数据复验",
             "非零 Offset、FiLM FP16 Island 和最终 OM 必须通过目标 DDK/麒麟9000门禁",
         ],
     }
@@ -294,7 +368,7 @@ def train_qat(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
     torch.save({
-        "format": "ai_isp_qat_checkpoint_v4_final",
+        "format": "ai_isp_qat_checkpoint_v6_1_final",
         "config_hash": _config_hash(config),
         "model": model.state_dict(),
         "adapters": adapters.state_dict() if adapters is not None else None,

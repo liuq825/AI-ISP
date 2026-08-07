@@ -1,0 +1,39 @@
+{
+  "stage": "teacher_fp32",
+  "config": {
+    "stage_name": "teacher_fp32",
+    "output_dir": "artifacts\\v6_1_cpu_smoke\\training\\teacher_fp32",
+    "steps": 1,
+    "learning_rate": 0.0002,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "accumulation_steps": 1,
+    "warmup_steps": 0,
+    "seed": 20260807,
+    "device": "cpu",
+    "student_amp": true,
+    "checkpoint_interval": 0,
+    "resume_from": null,
+    "memory_soft_limit_gb": 22.0,
+    "student_activation_checkpointing": false
+  },
+  "config_hash": "0095b7c12087c3c88f7ffe20c18245bb8e169cbbf7baee335cb96aaf301fe850",
+  "device": "cpu",
+  "elapsed_seconds": 0.3415125999599695,
+  "peak_memory_gb": 0.0,
+  "memory_soft_limit_exceeded": false,
+  "best_step": 1,
+  "best_raw_psnr": 31.32561585594168,
+  "best_model": "artifacts\\v6_1_cpu_smoke\\training\\teacher_fp32\\best_model.safetensors",
+  "final_model": "artifacts\\v6_1_cpu_smoke\\training\\teacher_fp32\\final_model.safetensors",
+  "selected_for_next_stage": "artifacts\\v6_1_cpu_smoke\\training\\teacher_fp32\\best_model.safetensors",
+  "history": [
+    {
+      "step": 1,
+      "loss_total": 0.03715438395738602,
+      "raw_psnr": 31.32561585594168,
+      "gradient_norm": 0.0,
+      "updated": 1
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "available": false,
+  "release_ready": false,
+  "reason": "smoke Shape 不允许进入 ATC/OM 发布编译",
+  "om_path": "artifacts\\v6_1_cpu_smoke\\release_v6_1\\om\\dark_preview_ryyb_4x3_mixed_int8_fp16.om",
+  "om_sha256": "",
+  "config": {
+    "onnx_path": "artifacts\\v6_1_cpu_smoke\\release_v6_1\\dark_preview_ryyb_4x3_mixed.onnx",
+    "output_dir": "artifacts\\v6_1_cpu_smoke\\release_v6_1\\om",
+    "soc_version": "Kirin9000_TARGET_DDK_REQUIRED",
+    "atc_executable": "atc",
+    "framework": 5,
+    "precision_mode": "must_keep_origin_dtype",
+    "profile_mode": "smoke"
+  }
+}

@@ -1,4 +1,4 @@
-"""V4 唯一 RYYB 4:3 静态输入的唯一来源。"""
+"""V6.1 唯一 RYYB 4:3 静态输入的唯一来源。"""
 
 from __future__ import annotations
 

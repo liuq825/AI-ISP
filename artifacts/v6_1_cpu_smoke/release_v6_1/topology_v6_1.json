@@ -1,0 +1,40 @@
+{
+  "model": "Conditional MobileNAFNet Dark Preview V6.1",
+  "image_channels": 4,
+  "base_width": 16,
+  "encoder_blocks": [
+    2,
+    2,
+    4
+  ],
+  "middle_blocks": 2,
+  "decoder_blocks": [
+    2,
+    2,
+    2
+  ],
+  "feature_channels": [
+    16,
+    32,
+    48,
+    96
+  ],
+  "condition_dim": 24,
+  "film_injection": [
+    "encoder_stage_2",
+    "encoder_stage_3",
+    "middle"
+  ],
+  "film_precision": {
+    "encoder_stage_2": "fp16",
+    "encoder_stage_3": "int8_dynamic_affine",
+    "middle": "int8_dynamic_affine"
+  },
+  "condition_cast": "single_fp32_to_model_dtype",
+  "output_semantics": "noise_pred",
+  "strength_policy": "inside_graph_output_scale",
+  "selected_candidate_id": "P36-16",
+  "weights_file": "model_mixed_qat.safetensors",
+  "weights_sha256": "ad350938b1e5cb2f5b51ddd46e8892e1f1a3bcedee724736270df3df5325c7fc",
+  "quantized_wrapper": "fixed_v6_mixed_lsqplus"
+}

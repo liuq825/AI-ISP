@@ -1,0 +1,12 @@
+{
+  "buffer_contract_version": "v1",
+  "buffer_count": 1,
+  "fd_import_count": 1,
+  "frame_count": 1,
+  "timeout_recovery_count": 0,
+  "extra_cpu_memcpy_bytes": 0,
+  "per_frame_map_unmap": 0,
+  "states": {
+    "0": "idle"
+  }
+}

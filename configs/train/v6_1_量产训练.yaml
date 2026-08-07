@@ -1,0 +1,22 @@
+output_dir: artifacts/v6_1_release_candidate
+dataset_root: datasets/ryyb_release
+ryyb_manifest: datasets/ryyb_release/manifest.jsonl
+patch_size: 256
+max_pairs: 0
+samples_per_epoch: 100000
+batch_size: 1
+teacher_steps: 500000
+student_steps: 400000
+kd_steps: 200000
+candidate_recovery_steps: {P10-16: 80000, P18-16: 120000, P36-16: 180000}
+candidate_recovery_max_steps: {P10-16: 120000, P18-16: 180000, P36-16: 240000}
+phase1_steps: 10000
+calibration_frames: 4096
+q1_steps: 2000
+q2_steps: 50000
+q3_steps: 10000
+device: cuda
+seed: 20260807
+export_mode: release
+soc_version: Kirin9000_TARGET_DDK_REQUIRED
+student_activation_checkpointing: true

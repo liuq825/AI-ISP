@@ -1,0 +1,9 @@
+{
+  "version": "6.1.0",
+  "raw_domain_state": "LINEAR_POST_BLC_LSC_PRE_DGAIN",
+  "blc_applied": true,
+  "lsc_applied": true,
+  "normalization": "clip(raw_post_lsc/(white-black),0,1)",
+  "formatter_subtract_black_level": false,
+  "digital_gain_position": "after_ai_unpack"
+}

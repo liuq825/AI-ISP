@@ -11,7 +11,7 @@ import torch
 from torch.utils.data import Dataset, Sampler
 
 from .condition_v2 import ConditionMetadata, encode_condition_v2
-from .pack_raw import normalize_packed_raw
+from .pack_raw import normalize_post_blc_lsc_packed_raw
 from .ryyb_contract import RyybManifestRecord, load_ryyb_manifest, pack_ryyb
 
 
@@ -34,21 +34,22 @@ class RyybRawPatchDataset(Dataset[dict[str, torch.Tensor | str | bool]]):
         self,
         manifest_path: str | Path,
         split: str,
-        patch_size: int = 256,
+        patch_size: int | tuple[int, int] = 256,
         samples_per_epoch: int | None = None,
         seed: int = 20260804,
         deterministic: bool = False,
     ) -> None:
-        if patch_size <= 0 or patch_size % 16:
-            raise ValueError("Packed RYYB Patch 必须为正数且能被 16 整除")
+        patch_shape = (patch_size, patch_size) if isinstance(patch_size, int) else tuple(patch_size)
+        if len(patch_shape) != 2 or any(value <= 0 or value % 16 for value in patch_shape):
+            raise ValueError("Packed RYYB Patch 高宽必须为正数且能被 16 整除")
         records = load_ryyb_manifest(manifest_path)
         validate_scene_splits(records)
         self.records = [record for record in records if record.split == split]
         if not self.records:
             raise ValueError(f"Manifest 没有 split={split!r} 的样本")
         self.manifest_root = Path(manifest_path).resolve().parent
-        self.patch_size = patch_size
-        self.mosaic_size = patch_size * 2
+        self.patch_height, self.patch_width = patch_shape
+        self.mosaic_height, self.mosaic_width = self.patch_height * 2, self.patch_width * 2
         self.samples_per_epoch = samples_per_epoch or len(self.records)
         self.seed = seed
         self.deterministic = deterministic
@@ -77,17 +78,21 @@ class RyybRawPatchDataset(Dataset[dict[str, torch.Tensor | str | bool]]):
         if noisy_raw.shape != clean_raw.shape:
             raise ValueError(f"{record.sample_id} 的 Noisy/Clean Shape 不一致")
         height, width = noisy_raw.shape
-        if min(height, width) < self.mosaic_size:
+        if height < self.mosaic_height or width < self.mosaic_width:
             raise ValueError(f"{record.sample_id} 小于请求的 RYYB Patch")
         # 起点乘 2，保证任何训练 Crop 都不改变 2×2 CFA 相位。
-        top = 2 * rng.randrange(0, (height - self.mosaic_size) // 2 + 1)
-        left = 2 * rng.randrange(0, (width - self.mosaic_size) // 2 + 1)
-        noisy_patch = np.asarray(noisy_raw[top:top + self.mosaic_size, left:left + self.mosaic_size], dtype=np.float32)
-        clean_patch = np.asarray(clean_raw[top:top + self.mosaic_size, left:left + self.mosaic_size], dtype=np.float32)
+        top = 2 * rng.randrange(0, (height - self.mosaic_height) // 2 + 1)
+        left = 2 * rng.randrange(0, (width - self.mosaic_width) // 2 + 1)
+        noisy_patch = np.asarray(
+            noisy_raw[top : top + self.mosaic_height, left : left + self.mosaic_width], dtype=np.float32
+        )
+        clean_patch = np.asarray(
+            clean_raw[top : top + self.mosaic_height, left : left + self.mosaic_width], dtype=np.float32
+        )
         noisy = torch.from_numpy(np.ascontiguousarray(pack_ryyb(noisy_patch, record.cfa_pattern)))
         clean = torch.from_numpy(np.ascontiguousarray(pack_ryyb(clean_patch, record.cfa_pattern)))
-        noisy = normalize_packed_raw(noisy, record.black_level, record.white_level)
-        clean = normalize_packed_raw(clean, record.black_level, record.white_level)
+        noisy = normalize_post_blc_lsc_packed_raw(noisy, record.black_level, record.white_level)
+        clean = normalize_post_blc_lsc_packed_raw(clean, record.black_level, record.white_level)
         if rng.randrange(2):
             noisy, clean = torch.flip(noisy, (-1,)), torch.flip(clean, (-1,))
         if rng.randrange(2):

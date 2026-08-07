@@ -1,5 +1,9 @@
 """结构化剪枝后的业务不变量验证。"""
 
-from .nafnet_pruning_validator import NAFNetPruningValidator, StructuredMobileNAFPruner
+from .nafnet_pruning_validator import (
+    NAFNetPruningValidator,
+    StructuredMobileNAFPruner,
+    estimate_macs_at_shape,
+)
 
-__all__ = ["NAFNetPruningValidator", "StructuredMobileNAFPruner"]
+__all__ = ["NAFNetPruningValidator", "StructuredMobileNAFPruner", "estimate_macs_at_shape"]

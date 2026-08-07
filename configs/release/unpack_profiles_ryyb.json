@@ -1,0 +1,10 @@
+{
+  "version": "6.1.0",
+  "semantic_channels": ["R", "Yr", "Yb", "B"],
+  "profiles": [
+    {"sensor_profile": "main_ryyb_0", "physical_cfa": "ryyb", "inverse_of_pack": true},
+    {"sensor_profile": "tele_ryyb_0", "physical_cfa": "byyr", "inverse_of_pack": true}
+  ],
+  "forbid_camera_name_phase_guess": true,
+  "bit_exact_required": true
+}

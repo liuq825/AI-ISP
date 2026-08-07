@@ -11,7 +11,7 @@ import torch
 import torch.nn.functional as functional
 from torch import nn
 
-from ai_isp.models.mobile_nafnet import MobileNAFBlockDW
+from ai_isp.models.mobile_nafnet import FiLMAffine, MobileNAFBlockDW
 from ai_isp.models.static_simple_gate import StaticSimpleGate
 
 
@@ -83,8 +83,11 @@ class LearnableFakeQuant(nn.Module):
         self.register_buffer("export_mode", torch.tensor(False))
         self.register_buffer("frozen_scale", torch.ones(shape))
         self.register_buffer("frozen_zero_point", torch.zeros(shape, dtype=torch.int8))
+        self.register_buffer("last_saturation_rate", torch.tensor(0.0))
+        self.register_buffer("max_saturation_rate", torch.tensor(0.0))
         self.observer_max_samples = int(observer_max_samples)
         self._samples: list[torch.Tensor] = []
+        self._observe_calls = 0
 
     @property
     def scale(self) -> torch.Tensor:
@@ -125,18 +128,32 @@ class LearnableFakeQuant(nn.Module):
         self.observer_enabled.fill_(enabled)
         if enabled:
             self._samples.clear()
+            self._observe_calls = 0
 
     def _observe(self, value: torch.Tensor) -> None:
         if self.channel_axis >= 0:
             return
-        remaining = self.observer_max_samples - sum(sample.numel() for sample in self._samples)
-        if remaining <= 0:
-            return
         flat = value.detach().float().flatten()
-        if flat.numel() > remaining:
-            step = max(flat.numel() // remaining, 1)
-            flat = flat[::step][:remaining]
-        self._samples.append(flat.cpu())
+        # Keep a reservoir of observations, not simply the first tensors. The
+        # former implementation filled 65k samples in the first four frames,
+        # so later Camera/ISO buckets were invisible to Q0.
+        maximum_chunks = 64
+        samples_per_call = max(self.observer_max_samples // maximum_chunks, 1)
+        if flat.numel() > samples_per_call:
+            indices = torch.linspace(
+                0, flat.numel() - 1, samples_per_call, device=flat.device
+            ).long()
+            flat = flat[indices]
+        sample = flat.cpu()
+        call_index = self._observe_calls
+        self._observe_calls += 1
+        if len(self._samples) < maximum_chunks:
+            self._samples.append(sample)
+            return
+        # Deterministic reservoir sampling over observation calls.
+        candidate = (1103515245 * (call_index + 1) + 12345) % (call_index + 1)
+        if candidate < maximum_chunks:
+            self._samples[int(candidate)] = sample
 
     @staticmethod
     def _balanced_bucket_mse(original: torch.Tensor, quantized: torch.Tensor) -> float:
@@ -177,19 +194,39 @@ class LearnableFakeQuant(nn.Module):
             quantized = (torch.round((values - offset) / scale).clamp(self.qmin, self.qmax) * scale + offset)
             score = self._balanced_bucket_mse(values, quantized)
             q = (values - offset) / scale
-            saturation = float(((q <= self.qmin) | (q >= self.qmax)).float().mean())
+            saturation = float(((q < self.qmin) | (q > self.qmax)).float().mean())
             candidate = (score, saturation, percentile, float(scale), float(offset))
             if best is None or candidate[:2] < best[:2]:
                 best = candidate
         assert best is not None
         with torch.no_grad():
-            scale_tensor = torch.tensor(best[3], device=self.log_scale.device).clamp_min(1e-8)
+            # Keep 10% symmetric headroom around the observed interval. Mapping
+            # extrema exactly to qmin/qmax makes a one-ULP Q1 scale update look
+            # like saturation, while upstream Q/DQ can shift downstream tails.
+            base_scale = torch.tensor(best[3], device=self.log_scale.device).clamp_min(1e-8)
+            scale_tensor = base_scale * 1.10
+            if self.symmetric:
+                calibrated_offset = torch.zeros_like(self.offset)
+            else:
+                midpoint_q = (self.qmin + self.qmax) / 2.0
+                center = torch.tensor(best[4], device=self.offset.device) + midpoint_q * base_scale
+                calibrated_offset = center - midpoint_q * scale_tensor
             self.log_scale.copy_(torch.log(torch.expm1(scale_tensor).clamp_min(1e-12)))
-            self.offset.copy_(torch.zeros_like(self.offset) if self.symmetric else torch.tensor(best[4], device=self.offset.device))
+            self.offset.copy_(calibrated_offset)
             self.initialized.fill_(True)
             self.observer_enabled.fill_(False)
+            # A paired SimpleGate quantizer is exercised by both halves before
+            # its joint observer range is finalized. Provisional overflow is
+            # not a post-calibration result and must not poison the hard gate.
+            self.last_saturation_rate.zero_()
+            self.max_saturation_rate.zero_()
         self._samples.clear()
-        return {"percentile": best[2], "balanced_mse": best[0], "saturation_rate": best[1]}
+        return {
+            "percentile": best[2],
+            "balanced_mse": best[0],
+            "saturation_rate": best[1],
+            "range_headroom_fraction": 0.10,
+        }
 
     def freeze_for_export(self) -> None:
         """把连续 Offset 吸收到可由 ONNX int8 Zero-point 表示的部署网格。"""
@@ -210,11 +247,19 @@ class LearnableFakeQuant(nn.Module):
             return _QdqExportFunction.apply(value, self.frozen_scale, self.frozen_zero_point, self.channel_axis)
         if bool(self.observer_enabled):
             self._observe(value)
+            # Q0 observes the FP32 activation graph. Provisional fake-quant
+            # would make downstream ranges depend on initialization order.
+            return value
         if not bool(self.initialized):
             self.initialize_from(value)
         if bool(self.export_mode):
             return _QdqExportFunction.apply(value, self.frozen_scale, self.frozen_zero_point, self.channel_axis)
         scale, offset = self._reshape(value)
+        with torch.no_grad():
+            normalized = (value.detach() - offset.detach()) / scale.detach().clamp_min(1e-8)
+            saturation = ((normalized < self.qmin) | (normalized > self.qmax)).float().mean()
+            self.last_saturation_rate.copy_(saturation)
+            self.max_saturation_rate.copy_(torch.maximum(self.max_saturation_rate, saturation))
         factor = 1.0 / math.sqrt(max(value.numel() * self.qmax, 1))
         scale = grad_scale(scale, factor)
         offset = grad_scale(offset, factor)
@@ -235,6 +280,8 @@ class LearnableFakeQuant(nn.Module):
             "qmax": self.qmax,
             "initialized": bool(self.initialized),
             "export_mode": bool(self.export_mode),
+            "last_saturation_rate": float(self.last_saturation_rate),
+            "max_saturation_rate": float(self.max_saturation_rate),
         }
 
 
@@ -273,25 +320,27 @@ class QatLinear(nn.Module):
 
 @dataclass(frozen=True)
 class QatPolicy:
-    activation_offset: bool = False
-    film_precision: str = "int8"
+    activation_offset: bool = True
+    precision_mapping: str = "fixed_v6_mixed"
     weight_bits: int = 8
     activation_bits: int = 8
 
     def __post_init__(self) -> None:
-        if self.film_precision not in ("int8", "fp16_npu"):
-            raise ValueError("FiLM 精度只允许 int8 或 fp16_npu")
+        if self.precision_mapping != "fixed_v6_mixed":
+            raise ValueError("V6.1 只允许 fixed_v6_mixed 精度映射")
         if self.weight_bits != 8 or self.activation_bits != 8:
-            raise ValueError("V4 发布策略固定为 W8A8")
+            raise ValueError("V6.1 INT8 区域固定为 W8A8")
 
 
 def _replace_layers(parent: nn.Module, policy: QatPolicy, prefix: str = "") -> None:
     for name, child in list(parent.named_children()):
         path = f"{prefix}.{name}" if prefix else name
-        protect_film = policy.film_precision == "fp16_npu" and path.startswith("condition_encoder")
+        protected_fp16 = path in ("intro", "ending") or path.startswith("condition_encoder")
+        if protected_fp16:
+            continue
         if isinstance(child, nn.Conv2d):
             setattr(parent, name, QatConv2d(child, policy.activation_offset))
-        elif isinstance(child, nn.Linear) and not protect_film:
+        elif isinstance(child, nn.Linear):
             setattr(parent, name, QatLinear(child, policy.activation_offset))
         else:
             _replace_layers(child, policy, path)
@@ -304,10 +353,20 @@ def prepare_qat_model(model: nn.Module, policy: QatPolicy) -> nn.Module:
     _replace_layers(qat_model, policy)
     for module in qat_model.modules():
         if isinstance(module, StaticSimpleGate):
+            shared_input_quant = LearnableFakeQuant(
+                8, symmetric=not policy.activation_offset, learnable_offset=policy.activation_offset
+            )
+            module.left_quant = shared_input_quant
+            module.right_quant = shared_input_quant
             module.output_quant = LearnableFakeQuant(8, symmetric=not policy.activation_offset, learnable_offset=policy.activation_offset)
         elif isinstance(module, MobileNAFBlockDW):
             module.spatial_residual_quant = LearnableFakeQuant(8, symmetric=not policy.activation_offset, learnable_offset=policy.activation_offset)
             module.channel_residual_quant = LearnableFakeQuant(8, symmetric=not policy.activation_offset, learnable_offset=policy.activation_offset)
+        elif isinstance(module, FiLMAffine) and module.dynamic_int8:
+            module.feature_quant = LearnableFakeQuant(8, symmetric=False, learnable_offset=True)
+            module.gamma_quant = LearnableFakeQuant(8, symmetric=False, learnable_offset=True)
+            module.beta_quant = LearnableFakeQuant(8, symmetric=False, learnable_offset=True)
+            module.output_quant = LearnableFakeQuant(8, symmetric=False, learnable_offset=True)
     return qat_model
 
 

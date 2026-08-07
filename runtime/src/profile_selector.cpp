@@ -41,6 +41,28 @@ Status ValidateAiAdmission(const RyybFrameDescriptor& frame, const AdmissionPoli
       return Status::kInvalidMetadata;
     }
   }
+  if (frame.raw_domain_state != RawDomainState::kLinearPostBlcLscPreDgain ||
+      !frame.blc_applied || !frame.lsc_applied) {
+    return Status::kInvalidMetadata;
+  }
+  if ((!policy.raw_domain_profile_hash.empty() &&
+       frame.raw_domain_profile_hash != policy.raw_domain_profile_hash) ||
+      frame.buffer_contract_version != policy.buffer_contract_version) {
+    return Status::kBufferContractMismatch;
+  }
+  const auto expected_lsc =
+      frame.camera == CameraId::kMain ? policy.main_lsc_profile_hash : policy.tele_lsc_profile_hash;
+  const auto expected_unpack = frame.camera == CameraId::kMain
+                                   ? policy.main_unpack_profile_hash
+                                   : policy.tele_unpack_profile_hash;
+  if ((!expected_lsc.empty() && frame.lsc_profile_hash != expected_lsc) ||
+      (!expected_unpack.empty() && frame.unpack_profile_hash != expected_unpack)) {
+    return Status::kHashMismatch;
+  }
+  if (frame.buffer_fd < 0 || (frame.plane_offset_bytes & 1U) ||
+      frame.extra_cpu_memcpy_bytes != 0U) {
+    return Status::kBufferContractMismatch;
+  }
   if ((!policy.model_hash.empty() && frame.model_hash != policy.model_hash) ||
       (!policy.quant_policy_hash.empty() && frame.quant_policy_hash != policy.quant_policy_hash)) {
     return Status::kHashMismatch;

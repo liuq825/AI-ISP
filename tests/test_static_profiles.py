@@ -17,15 +17,15 @@ def test_only_fixed_ryyb_profile_is_accepted() -> None:
 
 def test_legacy_simple_gate_is_replaced_only_on_copy() -> None:
     class SimpleGate(nn.Module):
-        channels = 8
+        channels = 16
 
         def forward(self, value):
             first, second = value.chunk(2, dim=1)
             return first * second
 
     source = nn.Sequential(SimpleGate())
-    deploy, report = prepare_export_model(source, allow_legacy_replacement=True, legacy_gate_channels={"0": 8})
+    deploy, report = prepare_export_model(source, allow_legacy_replacement=True, legacy_gate_channels={"0": 16})
     assert source[0].__class__.__name__ == "SimpleGate"
     assert deploy[0].__class__.__name__ == "StaticSimpleGate"
     assert report["global_monkey_patch"] is False
-    assert report["legacy_replacements"] == [{"name": "0", "channels": 8}]
+    assert report["legacy_replacements"] == [{"name": "0", "channels": 16}]

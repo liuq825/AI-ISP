@@ -76,6 +76,7 @@ def test_manifest_dataset_returns_phase_safe_semantic_patch(tmp_path: Path) -> N
         "noisy_path": "noisy.npy", "clean_path": "clean.npy", "iso": 1600,
         "exposure_time_s": 0.01, "bit_depth": 12,
         "black_level": [64, 64, 64, 64], "white_level": [4095, 4095, 4095, 4095],
+        "lsc_profile_hash": "test-lsc-profile",
     }
     manifest = tmp_path / "manifest.jsonl"
     manifest.write_text(json.dumps(record) + "\n", encoding="utf-8")

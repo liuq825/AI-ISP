@@ -36,6 +36,8 @@ def test_scene_split_has_no_leakage() -> None:
 def test_packed_augmentation_keeps_noisy_clean_alignment() -> None:
     noisy = torch.arange(4 * 8 * 12).reshape(4, 8, 12)
     clean = noisy + 7
-    aug_noisy, aug_clean = augment_packed_pair(noisy, clean, rotation_quarters=1, horizontal_flip=True)
-    assert aug_noisy.shape == (4, 12, 8)
+    with pytest.raises(ValueError, match="90"):
+        augment_packed_pair(noisy, clean, rotation_quarters=1, horizontal_flip=True)
+    aug_noisy, aug_clean = augment_packed_pair(noisy, clean, rotation_quarters=2, horizontal_flip=True)
+    assert aug_noisy.shape == (4, 8, 12)
     assert torch.equal(aug_clean - aug_noisy, torch.full_like(aug_noisy, 7))

@@ -12,6 +12,8 @@ import torch
 
 
 RYYB_CHANNELS: Final[tuple[str, ...]] = ("R", "Yr", "Yb", "B")
+RAW_DOMAIN_STATE: Final = "LINEAR_POST_BLC_LSC_PRE_DGAIN"
+BUFFER_CONTRACT_VERSION: Final = "v1"
 RYYB_CFA_OFFSETS: Final[dict[str, tuple[tuple[int, int], ...]]] = {
     # Pattern 名称按物理 2×2 宏像素逐行书写，输出统一为 R/Yr/Yb/B。
     "ryyb": ((0, 0), (0, 1), (1, 0), (1, 1)),
@@ -43,6 +45,18 @@ class RyybFrameDescriptor:
     bit_depth: int = 12
     black_level: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
     white_level: tuple[float, float, float, float] = (4095.0, 4095.0, 4095.0, 4095.0)
+    raw_domain_state: str = RAW_DOMAIN_STATE
+    blc_applied: bool = True
+    lsc_applied: bool = True
+    raw_domain_profile_hash: str = ""
+    lsc_profile_hash: str = ""
+    unpack_profile_hash: str = ""
+    buffer_contract_version: str = BUFFER_CONTRACT_VERSION
+    buffer_fd: int = 0
+    buffer_index: int = 0
+    plane_offset_bytes: int = 0
+    input_fence_fd: int = -1
+    extra_cpu_memcpy_bytes: int = 0
     model_hash: str = ""
     quant_policy_hash: str = ""
 
@@ -55,6 +69,10 @@ class AdmissionPolicy:
     sensor_cfa_phases: tuple[tuple[str, str], ...]
     model_hash: str = ""
     quant_policy_hash: str = ""
+    raw_domain_profile_hash: str = ""
+    lsc_profile_hashes: tuple[tuple[str, str], ...] = ()
+    unpack_profile_hashes: tuple[tuple[str, str], ...] = ()
+    buffer_contract_version: str = BUFFER_CONTRACT_VERSION
 
 
 def validate_ai_admission(descriptor: RyybFrameDescriptor, policy: AdmissionPolicy) -> None:
@@ -71,6 +89,20 @@ def validate_ai_admission(descriptor: RyybFrameDescriptor, policy: AdmissionPoli
     expected_cfa = dict(policy.sensor_cfa_phases).get(descriptor.sensor_profile)
     if expected_cfa is None or cfa != expected_cfa:
         raise ValueError(f"Sensor {descriptor.sensor_profile!r} 的注册CFA相位不是 {cfa!r}")
+    if descriptor.raw_domain_state != RAW_DOMAIN_STATE:
+        raise ValueError(f"RAW Domain 必须为 {RAW_DOMAIN_STATE}")
+    if not descriptor.blc_applied or not descriptor.lsc_applied:
+        raise ValueError("AI 输入必须已经完成 BLC 和 LSC")
+    if policy.raw_domain_profile_hash and descriptor.raw_domain_profile_hash != policy.raw_domain_profile_hash:
+        raise ValueError("RAW Domain Profile Hash 不匹配")
+    expected_lsc_hash = dict(policy.lsc_profile_hashes).get(descriptor.sensor_profile)
+    if expected_lsc_hash is not None and descriptor.lsc_profile_hash != expected_lsc_hash:
+        raise ValueError("LSC Profile Hash 不匹配")
+    expected_unpack_hash = dict(policy.unpack_profile_hashes).get(descriptor.sensor_profile)
+    if expected_unpack_hash is not None and descriptor.unpack_profile_hash != expected_unpack_hash:
+        raise ValueError("Unpack Profile Hash 不匹配")
+    if descriptor.buffer_contract_version != policy.buffer_contract_version:
+        raise ValueError("Buffer Contract Version 不匹配")
     crop_values = (descriptor.crop_x, descriptor.crop_y, descriptor.crop_width, descriptor.crop_height)
     if any(value < 0 or value % 2 for value in crop_values):
         raise ValueError("RYYB Crop 起点和宽高必须是非负偶数，只能按 2×2 宏像素裁剪")
@@ -82,6 +114,14 @@ def validate_ai_admission(descriptor: RyybFrameDescriptor, policy: AdmissionPoli
         raise ValueError("RYYB 位深仅允许 RAW10/12/14/16")
     if descriptor.row_stride_bytes < FIXED_RAW_WIDTH * 2:
         raise ValueError("RAW Row Stride 小于 uint16 容器的最小行字节数")
+    if descriptor.buffer_fd < 0 or descriptor.buffer_index < 0:
+        raise ValueError("DMA-BUF FD 和 Buffer Index 不得为负数")
+    if descriptor.plane_offset_bytes < 0 or descriptor.plane_offset_bytes % 2:
+        raise ValueError("Plane Offset 必须是非负且按 uint16 对齐")
+    if descriptor.input_fence_fd < -1:
+        raise ValueError("Input Fence FD 非法")
+    if descriptor.extra_cpu_memcpy_bytes != 0:
+        raise ValueError("V6 Buffer 契约禁止每帧额外 CPU memcpy")
     if len(descriptor.black_level) != 4 or len(descriptor.white_level) != 4:
         raise ValueError("Black/White Level 必须各包含四个语义通道")
     if any(white <= black for black, white in zip(descriptor.black_level, descriptor.white_level)):
@@ -130,6 +170,26 @@ def unpack_ryyb(packed: np.ndarray | torch.Tensor, cfa_pattern: str) -> np.ndarr
     return output
 
 
+def reconstruct_and_unpack_ryyb(
+    packed_raw: np.ndarray | torch.Tensor,
+    noise_pred: np.ndarray | torch.Tensor,
+    cfa_pattern: str,
+) -> np.ndarray | torch.Tensor:
+    """在语义平面执行 Subtract/Clamp，再按 Sensor 物理相位恢复二维 Mosaic。"""
+
+    if packed_raw.shape != noise_pred.shape:
+        raise ValueError("packed_raw 与 noise_pred 必须同 Shape")
+    if isinstance(packed_raw, torch.Tensor) != isinstance(noise_pred, torch.Tensor):
+        raise TypeError("packed_raw 与 noise_pred 必须使用相同 Tensor 类型")
+    reconstructed = packed_raw - noise_pred
+    reconstructed = (
+        reconstructed.clamp(0.0, 1.0)
+        if isinstance(reconstructed, torch.Tensor)
+        else np.clip(reconstructed, 0.0, 1.0)
+    )
+    return unpack_ryyb(reconstructed, cfa_pattern)
+
+
 @dataclass(frozen=True)
 class RyybManifestRecord:
     """量产 RYYB JSONL Manifest 的最小稳定字段。"""
@@ -157,6 +217,10 @@ class RyybManifestRecord:
     noise_read_b: float = 1e-10
     burst_id: str = ""
     smoke_only: bool = False
+    raw_domain_state: str = RAW_DOMAIN_STATE
+    blc_applied: bool = True
+    lsc_applied: bool = True
+    lsc_profile_hash: str = ""
 
 
 @dataclass(frozen=True)
@@ -222,6 +286,10 @@ def load_ryyb_manifest(path: str | Path) -> list[RyybManifestRecord]:
                 raise ValueError("Manifest 的 scene_id/sensor_profile 不能为空")
             if record.bit_depth not in (10, 12, 14, 16):
                 raise ValueError(f"Manifest 位深非法: {record.bit_depth}")
+            if record.raw_domain_state != RAW_DOMAIN_STATE or not record.blc_applied or not record.lsc_applied:
+                raise ValueError("Manifest RAW 必须处于 Post-BLC/LSC Pre-DGain 域")
+            if not record.smoke_only and not record.lsc_profile_hash:
+                raise ValueError("量产 RYYB Manifest 必须记录 lsc_profile_hash")
             if len(record.black_level) != 4 or len(record.white_level) != 4:
                 raise ValueError("Manifest Black/White Level 必须各包含四通道")
             if any(white <= black for black, white in zip(record.black_level, record.white_level)):

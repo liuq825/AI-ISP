@@ -1,0 +1,209 @@
+{
+  "RYYB_4X3": {
+    "profile_mode": "smoke",
+    "compile_height": 32,
+    "compile_width": 48,
+    "release_compile_height": 768,
+    "release_compile_width": 1024,
+    "raw_height": 1536,
+    "raw_width": 2048,
+    "path": "artifacts\\v6_1_cpu_smoke\\release_v6_1\\dark_preview_ryyb_4x3_mixed.onnx",
+    "sha256": "3638f612ed9e2d0971314edb4dbcbc8211018c8deae658610e6c9f01af61008c",
+    "operators": [
+      "Add",
+      "Cast",
+      "Clip",
+      "Constant",
+      "Conv",
+      "DequantizeLinear",
+      "Gemm",
+      "Identity",
+      "Mul",
+      "QuantizeLinear",
+      "Relu",
+      "Resize",
+      "Slice",
+      "Unsqueeze"
+    ],
+    "operator_counts": {
+      "Add": 41,
+      "Cast": 3,
+      "Clip": 6,
+      "Constant": 258,
+      "Conv": 88,
+      "DequantizeLinear": 394,
+      "Gemm": 5,
+      "Identity": 441,
+      "Mul": 74,
+      "QuantizeLinear": 394,
+      "Relu": 2,
+      "Resize": 3,
+      "Slice": 71,
+      "Unsqueeze": 14
+    },
+    "unsupported_operators": [],
+    "forbidden_gate_operators": [],
+    "dynamic_slice_inputs": [],
+    "input_shapes": {
+      "packed_raw": [
+        1,
+        4,
+        32,
+        48
+      ],
+      "condition": [
+        1,
+        24
+      ]
+    },
+    "input_element_types": {
+      "packed_raw": 10,
+      "condition": 1
+    },
+    "output_element_types": {
+      "noise_pred": 10
+    },
+    "condition_cast_count": 1,
+    "alignment": {
+      "available": false,
+      "max_abs_error": null,
+      "mean_abs_error": null,
+      "reason": "CPU ONNX Runtime 不作为 FP16 Q/DQ 部署图数值证据；使用独立 FP32 Q/DQ Reference 并等待目标端"
+    },
+    "gate_export": {
+      "global_monkey_patch": false,
+      "static_gates": [
+        {
+          "name": "encoders.0.0.spatial_gate",
+          "channels": 16
+        },
+        {
+          "name": "encoders.0.0.channel_gate",
+          "channels": 16
+        },
+        {
+          "name": "encoders.0.1.spatial_gate",
+          "channels": 16
+        },
+        {
+          "name": "encoders.0.1.channel_gate",
+          "channels": 16
+        },
+        {
+          "name": "encoders.1.0.spatial_gate",
+          "channels": 32
+        },
+        {
+          "name": "encoders.1.0.channel_gate",
+          "channels": 32
+        },
+        {
+          "name": "encoders.1.1.spatial_gate",
+          "channels": 32
+        },
+        {
+          "name": "encoders.1.1.channel_gate",
+          "channels": 32
+        },
+        {
+          "name": "encoders.2.0.spatial_gate",
+          "channels": 48
+        },
+        {
+          "name": "encoders.2.0.channel_gate",
+          "channels": 48
+        },
+        {
+          "name": "encoders.2.1.spatial_gate",
+          "channels": 48
+        },
+        {
+          "name": "encoders.2.1.channel_gate",
+          "channels": 48
+        },
+        {
+          "name": "encoders.2.2.spatial_gate",
+          "channels": 48
+        },
+        {
+          "name": "encoders.2.2.channel_gate",
+          "channels": 48
+        },
+        {
+          "name": "encoders.2.3.spatial_gate",
+          "channels": 48
+        },
+        {
+          "name": "encoders.2.3.channel_gate",
+          "channels": 48
+        },
+        {
+          "name": "middle.0.spatial_gate",
+          "channels": 96
+        },
+        {
+          "name": "middle.0.channel_gate",
+          "channels": 96
+        },
+        {
+          "name": "middle.1.spatial_gate",
+          "channels": 96
+        },
+        {
+          "name": "middle.1.channel_gate",
+          "channels": 96
+        },
+        {
+          "name": "decoders.0.0.spatial_gate",
+          "channels": 48
+        },
+        {
+          "name": "decoders.0.0.channel_gate",
+          "channels": 48
+        },
+        {
+          "name": "decoders.0.1.spatial_gate",
+          "channels": 48
+        },
+        {
+          "name": "decoders.0.1.channel_gate",
+          "channels": 48
+        },
+        {
+          "name": "decoders.1.0.spatial_gate",
+          "channels": 32
+        },
+        {
+          "name": "decoders.1.0.channel_gate",
+          "channels": 32
+        },
+        {
+          "name": "decoders.1.1.spatial_gate",
+          "channels": 32
+        },
+        {
+          "name": "decoders.1.1.channel_gate",
+          "channels": 32
+        },
+        {
+          "name": "decoders.2.0.spatial_gate",
+          "channels": 16
+        },
+        {
+          "name": "decoders.2.0.channel_gate",
+          "channels": 16
+        },
+        {
+          "name": "decoders.2.1.spatial_gate",
+          "channels": 16
+        },
+        {
+          "name": "decoders.2.1.channel_gate",
+          "channels": 16
+        }
+      ],
+      "legacy_replacements": []
+    },
+    "mixed_precision_boundary": true
+  }
+}

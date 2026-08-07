@@ -23,3 +23,15 @@ def test_symmetric_weight_quantizer_forces_zero_offset() -> None:
     assert quantizer.audit()["offset"] == 0.0
     assert not quantizer.offset.requires_grad
 
+
+def test_calibration_resets_provisional_saturation_history() -> None:
+    quantizer = LearnableFakeQuant()
+    quantizer.initialize_from(torch.tensor([-1.0, 1.0]))
+    quantizer(torch.tensor([-100.0, 100.0]))
+    assert float(quantizer.max_saturation_rate) > 0.0
+    quantizer.enable_observer(True)
+    quantizer(torch.tensor([-1.0, 1.0]))
+    quantizer(torch.tensor([-100.0, 100.0]))
+    quantizer.finalize_calibration((100.0,))
+    assert float(quantizer.last_saturation_rate) == 0.0
+    assert float(quantizer.max_saturation_rate) == 0.0

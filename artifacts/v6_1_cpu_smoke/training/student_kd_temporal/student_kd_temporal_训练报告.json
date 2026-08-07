@@ -1,0 +1,44 @@
+{
+  "stage": "student_kd_temporal",
+  "teacher_mode": "eval_fp32_no_grad",
+  "student_amp": false,
+  "config": {
+    "stage_name": "student_kd_temporal",
+    "output_dir": "artifacts\\v6_1_cpu_smoke\\training\\student_kd_temporal",
+    "steps": 1,
+    "learning_rate": 0.0001,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "accumulation_steps": 1,
+    "warmup_steps": 0,
+    "seed": 20260807,
+    "device": "cpu",
+    "student_amp": true,
+    "checkpoint_interval": 0,
+    "resume_from": null,
+    "memory_soft_limit_gb": 22.0,
+    "student_activation_checkpointing": false
+  },
+  "config_hash": "b20d7274bf83080903c90a5a35db573e5dfa4a7ec6bb92bd0a26536a2fce9169",
+  "device": "cpu",
+  "elapsed_seconds": 0.253757799975574,
+  "peak_memory_gb": 0.0,
+  "memory_soft_limit_exceeded": false,
+  "best_step": 1,
+  "best_raw_psnr": 31.32561585594168,
+  "best_model": "artifacts\\v6_1_cpu_smoke\\training\\student_kd_temporal\\best_model.safetensors",
+  "final_model": "artifacts\\v6_1_cpu_smoke\\training\\student_kd_temporal\\final_model.safetensors",
+  "selected_for_next_stage": "artifacts\\v6_1_cpu_smoke\\training\\student_kd_temporal\\best_model.safetensors",
+  "history": [
+    {
+      "step": 1,
+      "loss_total": 0.16811633110046387,
+      "loss_feature_kd": 1.0759971141815186,
+      "loss_attention_kd": 0.011036627925932407,
+      "loss_temporal": 0.024880560114979744,
+      "raw_psnr": 31.32561585594168,
+      "gradient_norm": 0.18195095658302307,
+      "updated": 1
+    }
+  ]
+}

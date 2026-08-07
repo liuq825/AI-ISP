@@ -1,0 +1,8 @@
+{
+  "version": "6.1.0-engineering",
+  "release_ready": false,
+  "pipeline": ["RYYB_unmix", "demosaic_proxy", "CCM", "tone"],
+  "main_profile": "engineering_placeholder_pending_calibration",
+  "tele_profile": "engineering_placeholder_pending_calibration",
+  "usage": "training_metric_only_not_runtime"
+}

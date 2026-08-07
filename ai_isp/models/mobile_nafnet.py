@@ -1,4 +1,4 @@
-"""V4 固定 RYYB 4:3 输入的 Conditional MobileNAFNet。"""
+"""V6.1 固定 RYYB 4:3 输入的 Conditional MobileNAFNet。"""
 
 from __future__ import annotations
 
@@ -51,17 +51,44 @@ class ConditionEncoder(nn.Module):
             nn.init.zeros_(head.bias)
 
     def forward(self, condition: torch.Tensor) -> tuple[torch.Tensor, ...]:
+        # 公共接口固定 FP32；部署半精度模型只在此处发生一次 FP32→FP16 Cast。
+        condition = condition.to(dtype=self.trunk[0].weight.dtype)
         encoded = self.trunk(condition)
         return tuple(head(encoded) for head in self.heads)
 
 
 def apply_film(feature: torch.Tensor, parameters: torch.Tensor) -> torch.Tensor:
-    """应用 ``F*(1+0.1*tanh(gamma))+0.1*tanh(beta)``。"""
+    """应用可导出为常量边界 Clip 的 HardTanh FiLM。"""
 
     channels = feature.shape[1]
     gamma = parameters[:, :channels, None, None]
     beta = parameters[:, channels:, None, None]
-    return feature * (1.0 + 0.1 * torch.tanh(gamma)) + 0.1 * torch.tanh(beta)
+    return feature * (1.0 + 0.1 * functional.hardtanh(gamma, -1.0, 1.0)) + 0.1 * functional.hardtanh(beta, -1.0, 1.0)
+
+
+class FiLMAffine(nn.Module):
+    """显式 FiLM 节点；Stage3/Middle 的量化器由 V6 QAT 转换器注入。"""
+
+    def __init__(self, channels: int, dynamic_int8: bool) -> None:
+        super().__init__()
+        self.channels = int(channels)
+        self.dynamic_int8 = bool(dynamic_int8)
+        self.feature_quant: nn.Module = nn.Identity()
+        self.gamma_quant: nn.Module = nn.Identity()
+        self.beta_quant: nn.Module = nn.Identity()
+        self.output_quant: nn.Module = nn.Identity()
+
+    def forward(self, feature: torch.Tensor, parameters: torch.Tensor) -> torch.Tensor:
+        if not torch.jit.is_tracing() and feature.shape[1] != self.channels:
+            raise ValueError("FiLM Feature 通道与冻结拓扑不一致")
+        gamma = parameters[:, : self.channels, None, None]
+        beta = parameters[:, self.channels :, None, None]
+        gamma_affine = 1.0 + 0.1 * functional.hardtanh(gamma, -1.0, 1.0)
+        beta_affine = 0.1 * functional.hardtanh(beta, -1.0, 1.0)
+        feature = self.feature_quant(feature)
+        gamma_affine = self.gamma_quant(gamma_affine)
+        beta_affine = self.beta_quant(beta_affine)
+        return self.output_quant(feature * gamma_affine + beta_affine)
 
 
 class UpsampleConv(nn.Module):
@@ -94,15 +121,15 @@ class MobileNAFNetW16(nn.Module):
         self.config = config or MobileNAFNetConfig()
         cfg = self.config
         if cfg.condition_dim != 24:
-            raise ValueError("V4 Condition 维度必须为 24")
+            raise ValueError("V6.1 Condition 维度必须为 24")
         widths = cfg.feature_channels or (
             cfg.base_width,
             cfg.base_width * 2,
             cfg.base_width * 4,
             cfg.base_width * 8,
         )
-        if len(widths) != 4 or any(channel <= 0 or channel % 8 for channel in widths):
-            raise ValueError("四级 Feature Channels 必须为正数且按 8 通道对齐")
+        if len(widths) != 4 or any(channel <= 0 or channel % 16 for channel in widths):
+            raise ValueError("四级 Feature Channels 必须为正数且按 16 通道对齐")
         self.intro = nn.Conv2d(cfg.image_channels, widths[0], 3, padding=1)
         self.encoders = nn.ModuleList(
             nn.Sequential(*(MobileNAFBlockDW(widths[index]) for _ in range(blocks)))
@@ -126,6 +153,9 @@ class MobileNAFNetW16(nn.Module):
             for index, blocks in enumerate(reversed(cfg.decoder_blocks))
         )
         self.condition_encoder = ConditionEncoder((widths[1], widths[2], widths[3]))
+        self.film_stage2 = FiLMAffine(widths[1], dynamic_int8=False)
+        self.film_stage3 = FiLMAffine(widths[2], dynamic_int8=True)
+        self.film_middle = FiLMAffine(widths[3], dynamic_int8=True)
         self.ending = nn.Conv2d(widths[0], cfg.image_channels, 3, padding=1)
         nn.init.zeros_(self.ending.weight)
         nn.init.zeros_(self.ending.bias)
@@ -157,13 +187,13 @@ class MobileNAFNetW16(nn.Module):
         feature = self._run_blocks(self.encoders[0], feature)
         encoder_outputs.append(feature)
         feature = self.downs[0](feature)
-        feature = self._run_blocks(self.encoders[1], apply_film(feature, film_e1))
+        feature = self._run_blocks(self.encoders[1], self.film_stage2(feature, film_e1))
         encoder_outputs.append(feature)
         feature = self.downs[1](feature)
-        feature = self._run_blocks(self.encoders[2], apply_film(feature, film_e2))
+        feature = self._run_blocks(self.encoders[2], self.film_stage3(feature, film_e2))
         encoder_outputs.append(feature)
         feature = self.downs[2](feature)
-        feature = self._run_blocks(self.middle, apply_film(feature, film_middle))
+        feature = self._run_blocks(self.middle, self.film_middle(feature, film_middle))
         middle_feature = feature
         for up, decoder, skip in zip(self.ups, self.decoders, reversed(encoder_outputs)):
             feature = self._run_blocks(decoder, up(feature) + skip)
@@ -193,7 +223,7 @@ class MobileNAFNetW16(nn.Module):
         """返回不依赖 Python Pickle 的冻结拓扑描述。"""
 
         return {
-            "model": "Conditional MobileNAFNet Dark Preview V4",
+            "model": "Conditional MobileNAFNet Dark Preview V6.1",
             "image_channels": self.config.image_channels,
             "base_width": self.config.base_width,
             "encoder_blocks": list(self.config.encoder_blocks),
@@ -202,13 +232,19 @@ class MobileNAFNetW16(nn.Module):
             "feature_channels": [self.downs[0].in_channels, *(layer.out_channels for layer in self.downs)],
             "condition_dim": 24,
             "film_injection": ["encoder_stage_2", "encoder_stage_3", "middle"],
+            "film_precision": {
+                "encoder_stage_2": "fp16",
+                "encoder_stage_3": "int8_dynamic_affine",
+                "middle": "int8_dynamic_affine",
+            },
+            "condition_cast": "single_fp32_to_model_dtype",
             "output_semantics": "noise_pred",
             "strength_policy": "inside_graph_output_scale",
         }
 
 
 def build_mobile_nafnet_w16() -> MobileNAFNetW16:
-    """创建 V4 Dense W16 基线模型。"""
+    """创建 V6.1 Dense W16 基线模型。"""
 
     return MobileNAFNetW16(MobileNAFNetConfig())
 

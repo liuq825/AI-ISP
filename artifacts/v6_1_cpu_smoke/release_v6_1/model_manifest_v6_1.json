@@ -1,0 +1,142 @@
+{
+  "manifest_version": "6.1.0-engineering",
+  "selected_candidate_id": "P36-16",
+  "development_selected": true,
+  "dynamic_affine_target_pending": true,
+  "target_validated": false,
+  "release_ready": false,
+  "smoke_only": true,
+  "profile_mode": "smoke",
+  "scope": "RYYB main+tele single static mixed-precision model",
+  "model_name": "Conditional MobileNAFNet Dark Preview V6.1",
+  "input": {
+    "packed_raw": {
+      "shape": [
+        1,
+        4,
+        32,
+        48
+      ],
+      "dtype": "float16"
+    },
+    "condition": {
+      "shape": [
+        1,
+        24
+      ],
+      "dtype": "float32",
+      "cast_count": 1
+    },
+    "channels": [
+      "R",
+      "Yr",
+      "Yb",
+      "B"
+    ]
+  },
+  "output": {
+    "noise_pred": {
+      "shape": [
+        1,
+        4,
+        32,
+        48
+      ],
+      "dtype": "float16"
+    }
+  },
+  "release_shape_target": [
+    1,
+    4,
+    768,
+    1024
+  ],
+  "precision_policy": "fixed_v6_mixed_lsqplus",
+  "artifact_layout": "single_static_ryyb_4x3_v6_1_smoke",
+  "artifacts": {
+    "buffer_contract": {
+      "path": "buffer_contract_v1.json",
+      "sha256": "59c9f28f0586bbd583c2525423b110415d7d5a239a97737f4e75234cd1e16345"
+    },
+    "condition_schema": {
+      "path": "condition_schema_v2.json",
+      "sha256": "7674de87cc3a609c346e4fa323ba30c3ec857aa02b095dae47a63f4947b49b36"
+    },
+    "development_selection": {
+      "path": "development_selection_v6_1.json",
+      "sha256": "3511b96fb7df7f277f0018bfd7a6b89dd61a23b908bdaf36b6e33a8b2bfbc4f4"
+    },
+    "lsc_profiles": {
+      "path": "lsc_profiles_ryyb.json",
+      "sha256": "3349c6901c81551808339e2f15ad2792b18f05069f7f1edac3e544c893cfca81"
+    },
+    "noise_profiles": {
+      "path": "noise_profiles_ryyb.json",
+      "sha256": "720d22f2b1ce27c0c415a7df4a739c4a3ff77ad1cd8e329fd5169a7ac6e90e2c"
+    },
+    "onnx": {
+      "path": "dark_preview_ryyb_4x3_mixed.onnx",
+      "sha256": "3638f612ed9e2d0971314edb4dbcbc8211018c8deae658610e6c9f01af61008c"
+    },
+    "quant_policy": {
+      "path": "quant_policy_v6_1_mixed.json",
+      "sha256": "766c91b0faec37b41851d9032e29ecdd9dee2a2af56f70d22ca67f3cb1258321"
+    },
+    "raw_domain_profile": {
+      "path": "raw_domain_profile.json",
+      "sha256": "ccd6a1817fd327f6a202187f5a5e61a0a7c622419c5e2e89a5a6d207f6e4a695"
+    },
+    "reference_isp_profile": {
+      "path": "reference_isp_profile.json",
+      "sha256": "132b42d5f2f7e9d6dda629b66d1040f56856428943958e4e9a77f7c227f587d8"
+    },
+    "selection_report": {
+      "path": "selection_report_v6_1.md",
+      "sha256": "7992bd2cab2f60e8bf2724a6b4e0e500aa20ae1b959cb8683fcafc6296c8de81"
+    },
+    "sensor_profiles": {
+      "path": "sensor_profiles_ryyb.json",
+      "sha256": "6d8e914812878d29e0a22a5dab6f635ea76592bd0060d0c96b3b1bfa866eccc0"
+    },
+    "topology": {
+      "path": "topology_v6_1.json",
+      "sha256": "53b22227e29d7aea2a76e90339dee15d81c0e3be45ba8fc298d348d73d50ebb2"
+    },
+    "unpack_profiles": {
+      "path": "unpack_profiles_ryyb.json",
+      "sha256": "4b7f23e661416e9c5c7292e3d4e996e51b7b0c3e8b39736f7f024efb62d4226f"
+    },
+    "weights": {
+      "path": "model_mixed_qat.safetensors",
+      "sha256": "ad350938b1e5cb2f5b51ddd46e8892e1f1a3bcedee724736270df3df5325c7fc"
+    }
+  },
+  "unpack_profile_hash": "4b7f23e661416e9c5c7292e3d4e996e51b7b0c3e8b39736f7f024efb62d4226f",
+  "lsc_profile_hash": "3349c6901c81551808339e2f15ad2792b18f05069f7f1edac3e544c893cfca81",
+  "buffer_contract_version": "v1",
+  "om": {
+    "available": false,
+    "path": "om/dark_preview_ryyb_4x3_mixed_int8_fp16.om",
+    "sha256": ""
+  },
+  "latency_budget_ms": {
+    "p50": 6.0,
+    "p95": 8.0,
+    "p99": 9.0,
+    "hard_timeout": 10.0
+  },
+  "buffer_contract": {
+    "extra_cpu_memcpy_bytes_per_frame": 0,
+    "fd_import": "stream_init_once",
+    "per_frame_map_unmap": false,
+    "fence_sync_optimization_target_ms": 0.2
+  },
+  "mandatory_target_validation": [
+    "真实主摄/长焦RYYB完整训练、盲测及分桶画质",
+    "目标DDK Dynamic Affine无FP16回退且dynamic_affine_target_pending=false",
+    "麒麟9000 100% NPU且CPU/GPU回退为0",
+    "AI节点6/8/9/10ms和整条Photo Preview 30fps",
+    "DMA-BUF/Fence/Cache/0-byte CPU memcpy",
+    "10000帧、10/30分钟热稳态、功耗、内存及Camera切换"
+  ]
+}

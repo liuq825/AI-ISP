@@ -1,0 +1,14 @@
+{
+  "version": "6.1.0-engineering",
+  "precision_policy": "fixed_v6_mixed_lsqplus",
+  "weights": {"bits": 8, "signed": true, "symmetric": true, "granularity": "per_output_channel", "zero_point": 0},
+  "activations": {"bits": 8, "signed": true, "granularity": "per_tensor", "lsqplus_offset": true},
+  "fp16_islands": ["raw_input", "intro", "condition_mlp", "film_heads", "stage2_film_apply", "ending", "noise_pred"],
+  "int8_regions": ["encoder_decoder_backbone", "depthwise_conv", "pointwise_conv", "simple_gate", "stage3_dynamic_affine", "middle_dynamic_affine"],
+  "condition_cast": {"input": "fp32", "target": "fp16", "count": 1},
+  "simple_gate": {"operation": "elementwise_multiply", "input_scale": "shared_per_tensor", "accumulator": "int32", "saturation_fail_rate": 0.001},
+  "dynamic_affine": {"gamma_beta_qdq_explicit": true, "feature_qdq_explicit": true, "accumulator": "int32", "reject_dequant_fp16_mul_add_quant": true, "target_pending": true},
+  "candidate_schedule": {"phase1": 10000, "q1": 2000},
+  "winner_schedule": {"q2_min": 50000, "q2_max": 80000, "q3": 10000},
+  "release_ready": false
+}

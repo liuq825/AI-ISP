@@ -8,6 +8,7 @@ add_library(ai_isp_runtime STATIC
     src/profile_selector.cpp
     src/dark_trigger.cpp
     src/raw_formatter.cpp
+    src/dmabuf_pool.cpp
     src/npu_executor.cpp
     src/failsafe.cpp
 )

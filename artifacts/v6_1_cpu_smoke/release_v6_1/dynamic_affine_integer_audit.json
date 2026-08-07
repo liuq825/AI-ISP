@@ -1,0 +1,70 @@
+{
+  "stage3": {
+    "max_abs_error": 0.0,
+    "mean_abs_error": 0.0,
+    "integer": {
+      "feature": {
+        "scale": 0.0011469930177554488,
+        "zero_point": 0,
+        "qmin": -128,
+        "qmax": 127
+      },
+      "gamma": {
+        "scale": 0.007875065319240093,
+        "zero_point": 0,
+        "qmin": -128,
+        "qmax": 127
+      },
+      "beta": {
+        "scale": 1.049884076564922e-06,
+        "zero_point": 0,
+        "qmin": -128,
+        "qmax": 127
+      },
+      "output": {
+        "scale": 0.0011469228193163872,
+        "zero_point": 0,
+        "qmin": -128,
+        "qmax": 127
+      },
+      "product_scale": 9.032644935536471e-06,
+      "int32_abs_max": 16126,
+      "int32_overflow": false
+    },
+    "dynamic_affine_target_pending": true
+  },
+  "middle": {
+    "max_abs_error": 0.0,
+    "mean_abs_error": 0.0,
+    "integer": {
+      "feature": {
+        "scale": 0.0009370269835926592,
+        "zero_point": 0,
+        "qmin": -128,
+        "qmax": 127
+      },
+      "gamma": {
+        "scale": 0.007875063456594944,
+        "zero_point": 0,
+        "qmin": -128,
+        "qmax": 127
+      },
+      "beta": {
+        "scale": 1.049816660270153e-06,
+        "zero_point": 0,
+        "qmin": -128,
+        "qmax": 127
+      },
+      "output": {
+        "scale": 0.000936862314119935,
+        "zero_point": 0,
+        "qmin": -128,
+        "qmax": 127
+      },
+      "product_scale": 7.379146956333941e-06,
+      "int32_abs_max": 16124,
+      "int32_overflow": false
+    },
+    "dynamic_affine_target_pending": true
+  }
+}

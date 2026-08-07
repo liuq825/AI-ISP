@@ -106,6 +106,8 @@ def augment_packed_pair(
     """
 
     k = int(rotation_quarters) % 4
+    if k % 2:
+        raise ValueError("V6.1 绝对禁止 90°/270° Rotation")
     noisy = torch.rot90(noisy, k, dims=(-2, -1))
     clean = torch.rot90(clean, k, dims=(-2, -1))
     if horizontal_flip:
@@ -170,7 +172,7 @@ class SiddRawPatchDataset(Dataset[dict[str, torch.Tensor | str]]):
         packed_clean = torch.from_numpy(pack_bayer(clean, pair.cfa))
         if self.augment:
             packed_noisy, packed_clean = augment_packed_pair(
-                packed_noisy, packed_clean, rng.randrange(4), bool(rng.randrange(2))
+                packed_noisy, packed_clean, rng.choice((0, 2)), bool(rng.randrange(2))
             )
         strength = rng.choices((0.0, 0.25, 0.5, 0.75, 1.0), weights=(10, 10, 10, 10, 50), k=1)[0]
         noise_level = float(torch.std(packed_noisy - packed_clean).clamp(0.0, 0.25))

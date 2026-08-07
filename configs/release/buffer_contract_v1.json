@@ -1,0 +1,13 @@
+{
+  "buffer_contract_version": "v1",
+  "public_interface": "DMA-BUF",
+  "ion_required": false,
+  "physical_contiguous_required": false,
+  "iommu_scatter_gather_allowed": true,
+  "fd_import": "stream_init_once_pool_reuse",
+  "per_frame_fields": ["buffer_index", "plane_offset", "row_stride", "valid_region", "producer_fence"],
+  "extra_cpu_memcpy_bytes_per_frame": 0,
+  "per_frame_map_unmap": false,
+  "cache_operations": ["producer_clean", "consumer_invalidate"],
+  "fence_sync_optimization_target_ms": 0.2
+}

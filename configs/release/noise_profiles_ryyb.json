@@ -1,0 +1,21 @@
+{
+  "version": "6.1.0-engineering",
+  "release_ready": false,
+  "formula": "Sigma=A*diag(a*max(x,0))*A^T+Sigma_read",
+  "profiles": [
+    {
+      "sensor_profile": "main_ryyb_0",
+      "a": [0.0001, 0.00012, 0.00012, 0.00011],
+      "A": [[1.0, 0.03, 0.02, 0.0], [0.03, 1.0, 0.08, 0.02], [0.02, 0.08, 1.0, 0.03], [0.0, 0.02, 0.03, 1.0]],
+      "sigma_read": [[1e-06, 0.0, 0.0, 0.0], [0.0, 1.2e-06, 0.0, 0.0], [0.0, 0.0, 1.2e-06, 0.0], [0.0, 0.0, 0.0, 1.1e-06]],
+      "status": "engineering_placeholder_pending_sensor_iso_temperature_calibration"
+    },
+    {
+      "sensor_profile": "tele_ryyb_0",
+      "a": [0.00013, 0.00015, 0.00015, 0.00014],
+      "A": [[1.0, 0.04, 0.03, 0.0], [0.04, 1.0, 0.1, 0.03], [0.03, 0.1, 1.0, 0.04], [0.0, 0.03, 0.04, 1.0]],
+      "sigma_read": [[1.4e-06, 0.0, 0.0, 0.0], [0.0, 1.6e-06, 0.0, 0.0], [0.0, 0.0, 1.6e-06, 0.0], [0.0, 0.0, 0.0, 1.5e-06]],
+      "status": "engineering_placeholder_pending_sensor_iso_temperature_calibration"
+    }
+  ]
+}

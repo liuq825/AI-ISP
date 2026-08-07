@@ -1,8 +1,9 @@
-"""V4 单一 RYYB 4:3 静态 ONNX 导出、图审计与数值对齐。"""
+"""V6.1 单一 RYYB 4:3 混合精度 ONNX 导出、图审计与数值对齐。"""
 
 from __future__ import annotations
 
 import copy
+from collections import Counter
 import hashlib
 import json
 from pathlib import Path
@@ -25,6 +26,17 @@ ALLOWED_ONNX_OPS = {
 }
 FORBIDDEN_DYNAMIC_GATE_OPS = {"Split", "SplitToSequence"}
 SMOKE_SHAPE = (32, 48)
+
+
+class _MixedPrecisionBoundary(nn.Module):
+    """Freeze the public OM boundary to FP16 even when fake-quant math promotes internally."""
+
+    def __init__(self, model: nn.Module) -> None:
+        super().__init__()
+        self.model = model
+
+    def forward(self, packed_raw: torch.Tensor, condition: torch.Tensor) -> torch.Tensor:
+        return self.model(packed_raw, condition).to(dtype=packed_raw.dtype)
 
 
 def _sha256(path: Path) -> str:
@@ -78,8 +90,8 @@ def prepare_export_model(
     gates = []
     for name, module in deploy.named_modules():
         if isinstance(module, StaticSimpleGate):
-            if module.channels <= 0 or module.channels % 8:
-                raise ValueError(f"StaticSimpleGate {name} 通道未按 8 对齐")
+            if module.channels <= 0 or module.channels % 16:
+                raise ValueError(f"StaticSimpleGate {name} 通道未按 16 对齐")
             gates.append({"name": name, "channels": module.channels})
         elif module.__class__.__name__ == "SimpleGate":
             raise ValueError(f"检测到遗留动态 SimpleGate {name}；必须在模型副本上受控转换")
@@ -94,6 +106,7 @@ def inspect_onnx(path: str | Path) -> dict[str, object]:
     path = Path(path)
     graph = onnx.load(path)
     operators = sorted({node.op_type for node in graph.graph.node})
+    operator_counts = dict(sorted(Counter(node.op_type for node in graph.graph.node).items()))
     unsupported = sorted(set(operators) - ALLOWED_ONNX_OPS)
     forbidden = sorted(set(operators) & FORBIDDEN_DYNAMIC_GATE_OPS)
     producer_by_output = {output: node.op_type for node in graph.graph.node for output in node.output}
@@ -109,14 +122,29 @@ def inspect_onnx(path: str | Path) -> dict[str, object]:
         item.name: [dimension.dim_value for dimension in item.type.tensor_type.shape.dim]
         for item in graph.graph.input
     }
+    condition_cast_count = sum(
+        1 for node in graph.graph.node if node.op_type == "Cast" and node.input and node.input[0] == "condition"
+    )
+    input_element_types = {
+        item.name: int(item.type.tensor_type.elem_type)
+        for item in graph.graph.input
+    }
+    output_element_types = {
+        item.name: int(item.type.tensor_type.elem_type)
+        for item in graph.graph.output
+    }
     return {
         "path": str(path),
         "sha256": _sha256(path),
         "operators": operators,
+        "operator_counts": operator_counts,
         "unsupported_operators": unsupported,
         "forbidden_gate_operators": forbidden,
         "dynamic_slice_inputs": sorted(set(dynamic_slice_inputs)),
         "input_shapes": input_shapes,
+        "input_element_types": input_element_types,
+        "output_element_types": output_element_types,
+        "condition_cast_count": condition_cast_count,
     }
 
 
@@ -131,11 +159,21 @@ def _valid_main_condition() -> torch.Tensor:
     return condition
 
 
-def _export_one(model: nn.Module, path: Path, height: int, width: int) -> dict[str, object]:
+def _export_one(
+    model: nn.Module,
+    path: Path,
+    height: int,
+    width: int,
+    mixed_precision_boundary: bool = False,
+) -> dict[str, object]:
     torch.manual_seed(20260804)
     image = torch.rand(1, 4, height, width, dtype=torch.float32)
     condition = _valid_main_condition()
     deploy, gate_report = prepare_export_model(model)
+    if mixed_precision_boundary:
+        deploy = deploy.half()
+        deploy = _MixedPrecisionBoundary(deploy)
+        image = image.half()
     with torch.no_grad():
         torch_output = deploy(image, condition).cpu().numpy()
     with warnings.catch_warnings():
@@ -147,30 +185,61 @@ def _export_one(model: nn.Module, path: Path, height: int, width: int) -> dict[s
             str(path),
             input_names=("packed_raw", "condition"),
             output_names=("noise_pred",),
-            opset_version=18,
+            opset_version=19,
             do_constant_folding=True,
             dynamo=False,
         )
-    session = onnxruntime.InferenceSession(str(path), providers=("CPUExecutionProvider",))
-    ort_output = session.run(None, {"packed_raw": image.numpy(), "condition": condition.numpy()})[0]
-    alignment = {
-        "max_abs_error": float(np.max(np.abs(torch_output - ort_output))),
-        "mean_abs_error": float(np.mean(np.abs(torch_output - ort_output))),
-    }
+    if mixed_precision_boundary:
+        finite_alignment = False
+        alignment = {
+            "available": False,
+            "max_abs_error": None,
+            "mean_abs_error": None,
+            "reason": "CPU ONNX Runtime 不作为 FP16 Q/DQ 部署图数值证据；使用独立 FP32 Q/DQ Reference 并等待目标端",
+        }
+    else:
+        session = onnxruntime.InferenceSession(str(path), providers=("CPUExecutionProvider",))
+        ort_output = session.run(None, {"packed_raw": image.numpy(), "condition": condition.numpy()})[0]
+        finite_alignment = bool(np.isfinite(torch_output).all() and np.isfinite(ort_output).all())
+        alignment = {
+            "available": finite_alignment,
+            "max_abs_error": float(np.max(np.abs(torch_output - ort_output))) if finite_alignment else None,
+            "mean_abs_error": float(np.mean(np.abs(torch_output - ort_output))) if finite_alignment else None,
+            "reason": "" if finite_alignment else "PyTorch/ONNX Runtime 数值包含 NaN/Inf",
+        }
     audit = inspect_onnx(path)
     if audit["unsupported_operators"]:
         raise ValueError(f"ONNX 出现非白名单算子: {audit['unsupported_operators']}")
     if audit["forbidden_gate_operators"] or audit["dynamic_slice_inputs"]:
         raise ValueError("ONNX 含动态 Gate/Slice，禁止进入 ATC")
-    if alignment["max_abs_error"] > 1e-4:
+    if mixed_precision_boundary and audit["condition_cast_count"] != 1:
+        raise ValueError(f"Condition FP32→FP16 Cast 必须恰好一次: {audit['condition_cast_count']}")
+    if mixed_precision_boundary:
+        if audit["input_element_types"].get("packed_raw") != onnx.TensorProto.FLOAT16:
+            raise ValueError("Mixed ONNX packed_raw 必须为 FP16")
+        if audit["input_element_types"].get("condition") != onnx.TensorProto.FLOAT:
+            raise ValueError("Mixed ONNX condition 必须为 FP32")
+        if audit["output_element_types"].get("noise_pred") != onnx.TensorProto.FLOAT16:
+            raise ValueError("Mixed ONNX noise_pred 必须为 FP16")
+    tolerance = 1e-3 if mixed_precision_boundary else 1e-4
+    if not finite_alignment and not mixed_precision_boundary:
+        raise ValueError("PyTorch→ONNX 数值包含 NaN/Inf")
+    if finite_alignment and alignment["max_abs_error"] > tolerance:
         raise ValueError(f"PyTorch→ONNX 最大误差超限: {alignment['max_abs_error']}")
-    return {**audit, "alignment": alignment, "gate_export": gate_report}
+    return {
+        **audit,
+        "alignment": alignment,
+        "gate_export": gate_report,
+        "mixed_precision_boundary": mixed_precision_boundary,
+    }
 
 
 def export_fixed_model(
     model: nn.Module,
     output_dir: str | Path,
     profile_mode: str = "smoke",
+    mixed_precision_boundary: bool = False,
+    filename: str = "dark_preview_ryyb_4x3.onnx",
 ) -> dict[str, dict[str, object]]:
     """只导出一个 RYYB_4X3 ONNX；release 模式使用固定发布 Shape。"""
 
@@ -180,7 +249,7 @@ def export_fixed_model(
     output_dir.mkdir(parents=True, exist_ok=True)
     profile = FIXED_RYYB_PROFILE
     height, width = SMOKE_SHAPE if profile_mode == "smoke" else (profile.compile_height, profile.compile_width)
-    path = output_dir / "dark_preview_ryyb_4x3.onnx"
+    path = output_dir / filename
     report = {
         profile.profile_id: {
             "profile_mode": profile_mode,
@@ -190,7 +259,7 @@ def export_fixed_model(
             "release_compile_width": profile.compile_width,
             "raw_height": profile.raw_height,
             "raw_width": profile.raw_width,
-            **_export_one(model, path, height, width),
+            **_export_one(model, path, height, width, mixed_precision_boundary),
         }
     }
     (output_dir / "onnx_export_report.json").write_text(

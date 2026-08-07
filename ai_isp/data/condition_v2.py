@@ -97,7 +97,7 @@ def validate_ryyb_release_condition_v2(condition: torch.Tensor) -> None:
     main = condition[..., 10] == 1.0
     tele = condition[..., 12] == 1.0
     if not bool((main | tele).all()):
-        raise ValueError("V4 AI RAW Denoise 只允许 main 或 tele Camera")
+        raise ValueError("V6.1 AI RAW Denoise 只允许 main 或 tele Camera")
     if bool((condition[..., 11] != 0.0).any()) or bool((condition[..., 13] != 0.0).any()):
         raise ValueError("ultrawide/other Camera 不得进入 AI RAW Denoise")
     main_mapping = main & (condition[..., 14] == 1.0) & (condition[..., 18] == 1.0)

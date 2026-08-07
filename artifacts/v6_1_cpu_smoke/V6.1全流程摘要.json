@@ -1,0 +1,3696 @@
+{
+  "status": "v6_1_engineering_completed",
+  "config": {
+    "output_dir": "artifacts/v6_1_cpu_smoke",
+    "dataset_root": "datasets/SIDD_Training_Subset",
+    "ryyb_manifest": null,
+    "patch_size": 32,
+    "max_pairs": 2,
+    "samples_per_epoch": 8,
+    "batch_size": 1,
+    "teacher_steps": 1,
+    "student_steps": 1,
+    "kd_steps": 1,
+    "candidate_recovery_steps": 1,
+    "candidate_recovery_max_steps": null,
+    "phase1_steps": 1,
+    "calibration_frames": 8,
+    "q1_steps": 1,
+    "q2_steps": 1,
+    "q3_steps": 1,
+    "device": "cpu",
+    "seed": 20260807,
+    "export_mode": "smoke",
+    "soc_version": "Kirin9000_TARGET_DDK_REQUIRED",
+    "student_activation_checkpointing": false
+  },
+  "smoke_only": true,
+  "selected_candidate_id": "P36-16",
+  "development_selected": true,
+  "dynamic_affine_target_pending": true,
+  "target_validated": false,
+  "release_ready": false,
+  "stages": {
+    "teacher": {
+      "stage": "teacher_fp32",
+      "config": {
+        "stage_name": "teacher_fp32",
+        "output_dir": "artifacts\\v6_1_cpu_smoke\\training\\teacher_fp32",
+        "steps": 1,
+        "learning_rate": 0.0002,
+        "weight_decay": 0.0001,
+        "gradient_clip": 1.0,
+        "accumulation_steps": 1,
+        "warmup_steps": 0,
+        "seed": 20260807,
+        "device": "cpu",
+        "student_amp": true,
+        "checkpoint_interval": 0,
+        "resume_from": null,
+        "memory_soft_limit_gb": 22.0,
+        "student_activation_checkpointing": false
+      },
+      "config_hash": "0095b7c12087c3c88f7ffe20c18245bb8e169cbbf7baee335cb96aaf301fe850",
+      "device": "cpu",
+      "elapsed_seconds": 0.3415125999599695,
+      "peak_memory_gb": 0.0,
+      "memory_soft_limit_exceeded": false,
+      "best_step": 1,
+      "best_raw_psnr": 31.32561585594168,
+      "best_model": "artifacts\\v6_1_cpu_smoke\\training\\teacher_fp32\\best_model.safetensors",
+      "final_model": "artifacts\\v6_1_cpu_smoke\\training\\teacher_fp32\\final_model.safetensors",
+      "selected_for_next_stage": "artifacts\\v6_1_cpu_smoke\\training\\teacher_fp32\\best_model.safetensors",
+      "history": [
+        {
+          "step": 1,
+          "loss_total": 0.03715438395738602,
+          "raw_psnr": 31.32561585594168,
+          "gradient_norm": 0.0,
+          "updated": 1
+        }
+      ]
+    },
+    "student": {
+      "stage": "student_fp32",
+      "config": {
+        "stage_name": "student_fp32",
+        "output_dir": "artifacts\\v6_1_cpu_smoke\\training\\student_fp32",
+        "steps": 1,
+        "learning_rate": 0.0002,
+        "weight_decay": 0.0001,
+        "gradient_clip": 1.0,
+        "accumulation_steps": 1,
+        "warmup_steps": 0,
+        "seed": 20260807,
+        "device": "cpu",
+        "student_amp": true,
+        "checkpoint_interval": 0,
+        "resume_from": null,
+        "memory_soft_limit_gb": 22.0,
+        "student_activation_checkpointing": false
+      },
+      "config_hash": "449ab8981789fbdb9b463f0135400ecdbbec751a40e69d53e36c66cda26bc8ab",
+      "device": "cpu",
+      "elapsed_seconds": 0.09556620009243488,
+      "peak_memory_gb": 0.0,
+      "memory_soft_limit_exceeded": false,
+      "best_step": 1,
+      "best_raw_psnr": 31.32561585594168,
+      "best_model": "artifacts\\v6_1_cpu_smoke\\training\\student_fp32\\best_model.safetensors",
+      "final_model": "artifacts\\v6_1_cpu_smoke\\training\\student_fp32\\final_model.safetensors",
+      "selected_for_next_stage": "artifacts\\v6_1_cpu_smoke\\training\\student_fp32\\best_model.safetensors",
+      "history": [
+        {
+          "step": 1,
+          "loss_total": 0.03715438395738602,
+          "raw_psnr": 31.32561585594168,
+          "gradient_norm": 0.0,
+          "updated": 1
+        }
+      ]
+    },
+    "kd_temporal_attention": {
+      "stage": "student_kd_temporal",
+      "teacher_mode": "eval_fp32_no_grad",
+      "student_amp": false,
+      "config": {
+        "stage_name": "student_kd_temporal",
+        "output_dir": "artifacts\\v6_1_cpu_smoke\\training\\student_kd_temporal",
+        "steps": 1,
+        "learning_rate": 0.0001,
+        "weight_decay": 0.0001,
+        "gradient_clip": 1.0,
+        "accumulation_steps": 1,
+        "warmup_steps": 0,
+        "seed": 20260807,
+        "device": "cpu",
+        "student_amp": true,
+        "checkpoint_interval": 0,
+        "resume_from": null,
+        "memory_soft_limit_gb": 22.0,
+        "student_activation_checkpointing": false
+      },
+      "config_hash": "b20d7274bf83080903c90a5a35db573e5dfa4a7ec6bb92bd0a26536a2fce9169",
+      "device": "cpu",
+      "elapsed_seconds": 0.253757799975574,
+      "peak_memory_gb": 0.0,
+      "memory_soft_limit_exceeded": false,
+      "best_step": 1,
+      "best_raw_psnr": 31.32561585594168,
+      "best_model": "artifacts\\v6_1_cpu_smoke\\training\\student_kd_temporal\\best_model.safetensors",
+      "final_model": "artifacts\\v6_1_cpu_smoke\\training\\student_kd_temporal\\final_model.safetensors",
+      "selected_for_next_stage": "artifacts\\v6_1_cpu_smoke\\training\\student_kd_temporal\\best_model.safetensors",
+      "history": [
+        {
+          "step": 1,
+          "loss_total": 0.16811633110046387,
+          "loss_feature_kd": 1.0759971141815186,
+          "loss_attention_kd": 0.011036627925932407,
+          "loss_temporal": 0.024880560114979744,
+          "raw_psnr": 31.32561585594168,
+          "gradient_norm": 0.18195095658302307,
+          "updated": 1
+        }
+      ]
+    },
+    "candidates": {
+      "P10-16": {
+        "pruning": {
+          "target_ratio": 0.10524850341083114,
+          "parameter_count_before": 660836,
+          "parameter_count_after": 591284,
+          "parameter_reduction": 0.10524850341083114,
+          "macs_before": 46392832,
+          "macs_after": 44904960,
+          "mac_reduction": 0.03207116133802734,
+          "feature_channels": [
+            16,
+            32,
+            64,
+            112
+          ],
+          "rounds": [
+            {
+              "round": 1,
+              "stage": 3,
+              "removed_indices": [
+                2,
+                4,
+                12,
+                13,
+                18,
+                33,
+                51,
+                52,
+                56,
+                77,
+                82,
+                86,
+                97,
+                106,
+                120,
+                125
+              ],
+              "width_before": 128,
+              "width_after": 112,
+              "parameter_reduction": 0.10524850341083114
+            }
+          ]
+        },
+        "frozen": {
+          "weights": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\fp16_topology\\model_fp32.safetensors",
+          "topology": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\fp16_topology\\topology.json",
+          "model": "Conditional MobileNAFNet Dark Preview V6.1",
+          "image_channels": 4,
+          "base_width": 16,
+          "encoder_blocks": [
+            2,
+            2,
+            4
+          ],
+          "middle_blocks": 2,
+          "decoder_blocks": [
+            2,
+            2,
+            2
+          ],
+          "feature_channels": [
+            16,
+            32,
+            64,
+            112
+          ],
+          "condition_dim": 24,
+          "film_injection": [
+            "encoder_stage_2",
+            "encoder_stage_3",
+            "middle"
+          ],
+          "film_precision": {
+            "encoder_stage_2": "fp16",
+            "encoder_stage_3": "int8_dynamic_affine",
+            "middle": "int8_dynamic_affine"
+          },
+          "condition_cast": "single_fp32_to_model_dtype",
+          "output_semantics": "noise_pred",
+          "strength_policy": "inside_graph_output_scale",
+          "weights_file": "model_fp32.safetensors",
+          "weights_sha256": "3389f840b9644cc325d6322de6e3e913f2234c89b5ee594c0cff3c8627ba5c07"
+        },
+        "recovery": {
+          "default_steps": 1,
+          "maximum_steps": 1,
+          "quality_after_default": {
+            "raw_psnr_drop_db": 0.0,
+            "ssim_drop": 0.0
+          },
+          "extended_to_maximum": false,
+          "initial": {
+            "stage": "P10-16_recovery",
+            "teacher_mode": "eval_fp32_no_grad",
+            "student_amp": false,
+            "config": {
+              "stage_name": "P10-16_recovery",
+              "output_dir": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\training\\P10-16_recovery",
+              "steps": 1,
+              "learning_rate": 5e-05,
+              "weight_decay": 0.0001,
+              "gradient_clip": 1.0,
+              "accumulation_steps": 1,
+              "warmup_steps": 0,
+              "seed": 20260807,
+              "device": "cpu",
+              "student_amp": true,
+              "checkpoint_interval": 0,
+              "resume_from": null,
+              "memory_soft_limit_gb": 22.0,
+              "student_activation_checkpointing": false
+            },
+            "config_hash": "d36129663c1b27eb56f3c53cf97c17cb7c3be6185814a36f4363d071a1d9d7d7",
+            "device": "cpu",
+            "elapsed_seconds": 0.16738659981638193,
+            "peak_memory_gb": 0.0,
+            "memory_soft_limit_exceeded": false,
+            "best_step": 1,
+            "best_raw_psnr": 31.32561585594168,
+            "best_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\training\\P10-16_recovery\\best_model.safetensors",
+            "final_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\training\\P10-16_recovery\\final_model.safetensors",
+            "selected_for_next_stage": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\training\\P10-16_recovery\\best_model.safetensors",
+            "history": [
+              {
+                "step": 1,
+                "loss_total": 0.1679297238588333,
+                "loss_feature_kd": 1.074507474899292,
+                "loss_attention_kd": 0.010918362066149712,
+                "loss_temporal": 0.024245841428637505,
+                "raw_psnr": 31.32561585594168,
+                "gradient_norm": 0.18213717639446259,
+                "updated": 1
+              }
+            ]
+          },
+          "extension": null
+        },
+        "phase1": {
+          "stage": "P10-16_phase1_fullsize",
+          "config": {
+            "stage_name": "P10-16_phase1_fullsize",
+            "output_dir": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\training\\P10-16_phase1_fullsize",
+            "steps": 1,
+            "learning_rate": 1e-05,
+            "weight_decay": 0.0001,
+            "gradient_clip": 1.0,
+            "accumulation_steps": 1,
+            "warmup_steps": 0,
+            "seed": 20260807,
+            "device": "cpu",
+            "student_amp": true,
+            "checkpoint_interval": 0,
+            "resume_from": null,
+            "memory_soft_limit_gb": 22.0,
+            "student_activation_checkpointing": false
+          },
+          "config_hash": "af85b529708921bc5c5d82837ec3d1221ee1bbdd89a9e47087674c2e2378e738",
+          "device": "cpu",
+          "elapsed_seconds": 0.09273339994251728,
+          "peak_memory_gb": 0.0,
+          "memory_soft_limit_exceeded": false,
+          "best_step": 1,
+          "best_raw_psnr": 31.32561585594168,
+          "best_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\training\\P10-16_phase1_fullsize\\best_model.safetensors",
+          "final_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\training\\P10-16_phase1_fullsize\\final_model.safetensors",
+          "selected_for_next_stage": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\training\\P10-16_phase1_fullsize\\best_model.safetensors",
+          "history": [
+            {
+              "step": 1,
+              "loss_total": 0.03715438395738602,
+              "raw_psnr": 31.32561585594168,
+              "gradient_norm": 0.0,
+              "updated": 1
+            }
+          ]
+        },
+        "q1": {
+          "policy": {
+            "activation_offset": true,
+            "precision_mapping": "fixed_v6_mixed",
+            "weight_bits": 8,
+            "activation_bits": 8
+          },
+          "config_hash": "187e40248a5b219dde82ce9a08018f07b39467ee235b38201f72755943d8ec61",
+          "run_through_phase": "q1",
+          "q0_quantizer_count": 276,
+          "history": [
+            {
+              "phase": "q1",
+              "step": 1,
+              "loss_total": 0.17229211330413818,
+              "loss_feature_kd": 1.1178722381591797,
+              "loss_attention_kd": 0.011098225601017475,
+              "loss_temporal": 0.024584563449025154,
+              "loss_gate": 0.0,
+              "raw_psnr": 31.32561585594168,
+              "gradient_norm": 4.7679368009312384e-08
+            }
+          ],
+          "film_audit": {
+            "per_camera": {
+              "main": {
+                "gamma_mean_abs_error": 0.0,
+                "gamma_max_abs_error": 0.0,
+                "beta_mean_abs_error": 0.0,
+                "beta_max_abs_error": 0.0
+              },
+              "tele": {
+                "gamma_mean_abs_error": 0.0,
+                "gamma_max_abs_error": 0.0,
+                "beta_mean_abs_error": 0.0,
+                "beta_max_abs_error": 0.0
+              }
+            },
+            "condition_encoder_quantizers": {}
+          }
+        },
+        "q1_activation_saturation_probe": {
+          "definition": "quantization_pre_range_overflow / activation_elements",
+          "frames": 8,
+          "camera_balanced": true,
+          "excludes_per_channel_weights": true,
+          "layers": {
+            "encoders.0.0.spatial_expand.input_quant": 0.0003662109375,
+            "encoders.0.0.spatial_expand.output_quant": 0.000213623046875,
+            "encoders.0.0.spatial_dw.input_quant": 0.0,
+            "encoders.0.0.spatial_dw.output_quant": 0.0,
+            "encoders.0.0.spatial_gate.left_quant": 0.0,
+            "encoders.0.0.spatial_gate.output_quant": 0.00018310546875,
+            "encoders.0.0.spatial_project.input_quant": 0.000244140625,
+            "encoders.0.0.spatial_project.output_quant": 0.0,
+            "encoders.0.0.channel_expand.input_quant": 0.0,
+            "encoders.0.0.channel_expand.output_quant": 0.0006103515625,
+            "encoders.0.0.channel_gate.left_quant": 0.0,
+            "encoders.0.0.channel_gate.output_quant": 0.00030517578125,
+            "encoders.0.0.channel_project.input_quant": 0.0,
+            "encoders.0.0.channel_project.output_quant": 0.0,
+            "encoders.0.0.spatial_residual_quant": 0.0003662109375,
+            "encoders.0.0.channel_residual_quant": 6.103515625e-05,
+            "encoders.0.1.spatial_expand.input_quant": 0.0003662109375,
+            "encoders.0.1.spatial_expand.output_quant": 0.0,
+            "encoders.0.1.spatial_dw.input_quant": 0.0,
+            "encoders.0.1.spatial_dw.output_quant": 3.0517578125e-05,
+            "encoders.0.1.spatial_gate.left_quant": 0.0,
+            "encoders.0.1.spatial_gate.output_quant": 0.0,
+            "encoders.0.1.spatial_project.input_quant": 0.0,
+            "encoders.0.1.spatial_project.output_quant": 0.0,
+            "encoders.0.1.channel_expand.input_quant": 0.0003662109375,
+            "encoders.0.1.channel_expand.output_quant": 0.00030517578125,
+            "encoders.0.1.channel_gate.left_quant": 0.0,
+            "encoders.0.1.channel_gate.output_quant": 0.0001220703125,
+            "encoders.0.1.channel_project.input_quant": 6.103515625e-05,
+            "encoders.0.1.channel_project.output_quant": 0.0,
+            "encoders.0.1.spatial_residual_quant": 0.0003662109375,
+            "encoders.0.1.channel_residual_quant": 0.0001220703125,
+            "encoders.1.0.spatial_expand.input_quant": 0.0,
+            "encoders.1.0.spatial_expand.output_quant": 0.0,
+            "encoders.1.0.spatial_dw.input_quant": 0.0,
+            "encoders.1.0.spatial_dw.output_quant": 0.0,
+            "encoders.1.0.spatial_gate.left_quant": 0.0,
+            "encoders.1.0.spatial_gate.output_quant": 0.0,
+            "encoders.1.0.spatial_project.input_quant": 0.0,
+            "encoders.1.0.spatial_project.output_quant": 0.0,
+            "encoders.1.0.channel_expand.input_quant": 0.0,
+            "encoders.1.0.channel_expand.output_quant": 0.00042724609375,
+            "encoders.1.0.channel_gate.left_quant": 0.0,
+            "encoders.1.0.channel_gate.output_quant": 0.0,
+            "encoders.1.0.channel_project.input_quant": 0.0,
+            "encoders.1.0.channel_project.output_quant": 0.0,
+            "encoders.1.0.spatial_residual_quant": 0.0,
+            "encoders.1.0.channel_residual_quant": 0.0,
+            "encoders.1.1.spatial_expand.input_quant": 0.0,
+            "encoders.1.1.spatial_expand.output_quant": 0.0,
+            "encoders.1.1.spatial_dw.input_quant": 0.0,
+            "encoders.1.1.spatial_dw.output_quant": 0.0,
+            "encoders.1.1.spatial_gate.left_quant": 0.0,
+            "encoders.1.1.spatial_gate.output_quant": 0.0,
+            "encoders.1.1.spatial_project.input_quant": 0.0,
+            "encoders.1.1.spatial_project.output_quant": 0.0,
+            "encoders.1.1.channel_expand.input_quant": 0.0,
+            "encoders.1.1.channel_expand.output_quant": 6.103515625e-05,
+            "encoders.1.1.channel_gate.left_quant": 0.0,
+            "encoders.1.1.channel_gate.output_quant": 0.0001220703125,
+            "encoders.1.1.channel_project.input_quant": 0.0,
+            "encoders.1.1.channel_project.output_quant": 0.0,
+            "encoders.1.1.spatial_residual_quant": 0.0,
+            "encoders.1.1.channel_residual_quant": 0.0,
+            "encoders.2.0.spatial_expand.input_quant": 0.0,
+            "encoders.2.0.spatial_expand.output_quant": 0.0,
+            "encoders.2.0.spatial_dw.input_quant": 0.0,
+            "encoders.2.0.spatial_dw.output_quant": 0.0,
+            "encoders.2.0.spatial_gate.left_quant": 0.0,
+            "encoders.2.0.spatial_gate.output_quant": 0.0,
+            "encoders.2.0.spatial_project.input_quant": 0.0,
+            "encoders.2.0.spatial_project.output_quant": 0.0,
+            "encoders.2.0.channel_expand.input_quant": 0.0,
+            "encoders.2.0.channel_expand.output_quant": 0.0,
+            "encoders.2.0.channel_gate.left_quant": 0.0,
+            "encoders.2.0.channel_gate.output_quant": 0.00048828125,
+            "encoders.2.0.channel_project.input_quant": 0.0,
+            "encoders.2.0.channel_project.output_quant": 0.0,
+            "encoders.2.0.spatial_residual_quant": 0.0,
+            "encoders.2.0.channel_residual_quant": 0.0,
+            "encoders.2.1.spatial_expand.input_quant": 0.0,
+            "encoders.2.1.spatial_expand.output_quant": 0.0,
+            "encoders.2.1.spatial_dw.input_quant": 0.0,
+            "encoders.2.1.spatial_dw.output_quant": 0.0,
+            "encoders.2.1.spatial_gate.left_quant": 0.0,
+            "encoders.2.1.spatial_gate.output_quant": 0.0,
+            "encoders.2.1.spatial_project.input_quant": 0.0,
+            "encoders.2.1.spatial_project.output_quant": 0.0,
+            "encoders.2.1.channel_expand.input_quant": 0.0,
+            "encoders.2.1.channel_expand.output_quant": 0.0,
+            "encoders.2.1.channel_gate.left_quant": 0.0,
+            "encoders.2.1.channel_gate.output_quant": 0.0,
+            "encoders.2.1.channel_project.input_quant": 0.0,
+            "encoders.2.1.channel_project.output_quant": 0.0,
+            "encoders.2.1.spatial_residual_quant": 0.0,
+            "encoders.2.1.channel_residual_quant": 0.0,
+            "encoders.2.2.spatial_expand.input_quant": 0.0,
+            "encoders.2.2.spatial_expand.output_quant": 0.0001220703125,
+            "encoders.2.2.spatial_dw.input_quant": 0.0,
+            "encoders.2.2.spatial_dw.output_quant": 0.0,
+            "encoders.2.2.spatial_gate.left_quant": 0.0,
+            "encoders.2.2.spatial_gate.output_quant": 0.0,
+            "encoders.2.2.spatial_project.input_quant": 0.0,
+            "encoders.2.2.spatial_project.output_quant": 0.0,
+            "encoders.2.2.channel_expand.input_quant": 0.0,
+            "encoders.2.2.channel_expand.output_quant": 0.0,
+            "encoders.2.2.channel_gate.left_quant": 0.0,
+            "encoders.2.2.channel_gate.output_quant": 0.0,
+            "encoders.2.2.channel_project.input_quant": 0.0,
+            "encoders.2.2.channel_project.output_quant": 0.0,
+            "encoders.2.2.spatial_residual_quant": 0.0,
+            "encoders.2.2.channel_residual_quant": 0.0,
+            "encoders.2.3.spatial_expand.input_quant": 0.0,
+            "encoders.2.3.spatial_expand.output_quant": 0.0,
+            "encoders.2.3.spatial_dw.input_quant": 0.0,
+            "encoders.2.3.spatial_dw.output_quant": 0.0,
+            "encoders.2.3.spatial_gate.left_quant": 0.0,
+            "encoders.2.3.spatial_gate.output_quant": 0.0,
+            "encoders.2.3.spatial_project.input_quant": 0.0,
+            "encoders.2.3.spatial_project.output_quant": 0.0,
+            "encoders.2.3.channel_expand.input_quant": 0.0,
+            "encoders.2.3.channel_expand.output_quant": 0.0,
+            "encoders.2.3.channel_gate.left_quant": 0.0,
+            "encoders.2.3.channel_gate.output_quant": 0.0,
+            "encoders.2.3.channel_project.input_quant": 0.0,
+            "encoders.2.3.channel_project.output_quant": 0.0,
+            "encoders.2.3.spatial_residual_quant": 0.0,
+            "encoders.2.3.channel_residual_quant": 0.0,
+            "downs.0.input_quant": 0.0,
+            "downs.0.output_quant": 0.0,
+            "downs.1.input_quant": 0.0,
+            "downs.1.output_quant": 0.0,
+            "downs.2.input_quant": 0.0,
+            "downs.2.output_quant": 0.0,
+            "middle.0.spatial_expand.input_quant": 0.0,
+            "middle.0.spatial_expand.output_quant": 0.0,
+            "middle.0.spatial_dw.input_quant": 0.0,
+            "middle.0.spatial_dw.output_quant": 0.0,
+            "middle.0.spatial_gate.left_quant": 0.0,
+            "middle.0.spatial_gate.output_quant": 0.0,
+            "middle.0.spatial_project.input_quant": 0.0,
+            "middle.0.spatial_project.output_quant": 0.0,
+            "middle.0.channel_expand.input_quant": 0.0,
+            "middle.0.channel_expand.output_quant": 0.0,
+            "middle.0.channel_gate.left_quant": 0.0,
+            "middle.0.channel_gate.output_quant": 0.0,
+            "middle.0.channel_project.input_quant": 0.0,
+            "middle.0.channel_project.output_quant": 0.0,
+            "middle.0.spatial_residual_quant": 0.0,
+            "middle.0.channel_residual_quant": 0.0,
+            "middle.1.spatial_expand.input_quant": 0.0,
+            "middle.1.spatial_expand.output_quant": 0.0,
+            "middle.1.spatial_dw.input_quant": 0.0,
+            "middle.1.spatial_dw.output_quant": 0.0,
+            "middle.1.spatial_gate.left_quant": 0.0,
+            "middle.1.spatial_gate.output_quant": 0.0,
+            "middle.1.spatial_project.input_quant": 0.0,
+            "middle.1.spatial_project.output_quant": 0.0,
+            "middle.1.channel_expand.input_quant": 0.0,
+            "middle.1.channel_expand.output_quant": 0.0,
+            "middle.1.channel_gate.left_quant": 0.0,
+            "middle.1.channel_gate.output_quant": 0.0,
+            "middle.1.channel_project.input_quant": 0.0,
+            "middle.1.channel_project.output_quant": 0.0,
+            "middle.1.spatial_residual_quant": 0.0,
+            "middle.1.channel_residual_quant": 0.0,
+            "ups.0.conv.input_quant": 0.0,
+            "ups.0.conv.output_quant": 0.0,
+            "ups.1.conv.input_quant": 0.0,
+            "ups.1.conv.output_quant": 0.0001220703125,
+            "ups.2.conv.input_quant": 0.00048828125,
+            "ups.2.conv.output_quant": 0.0003662109375,
+            "decoders.0.0.spatial_expand.input_quant": 0.0,
+            "decoders.0.0.spatial_expand.output_quant": 0.0,
+            "decoders.0.0.spatial_dw.input_quant": 0.0,
+            "decoders.0.0.spatial_dw.output_quant": 0.0,
+            "decoders.0.0.spatial_gate.left_quant": 0.0,
+            "decoders.0.0.spatial_gate.output_quant": 0.0,
+            "decoders.0.0.spatial_project.input_quant": 0.0,
+            "decoders.0.0.spatial_project.output_quant": 0.0,
+            "decoders.0.0.channel_expand.input_quant": 0.0,
+            "decoders.0.0.channel_expand.output_quant": 0.0,
+            "decoders.0.0.channel_gate.left_quant": 0.0,
+            "decoders.0.0.channel_gate.output_quant": 0.0,
+            "decoders.0.0.channel_project.input_quant": 0.0,
+            "decoders.0.0.channel_project.output_quant": 0.0,
+            "decoders.0.0.spatial_residual_quant": 0.0,
+            "decoders.0.0.channel_residual_quant": 0.0,
+            "decoders.0.1.spatial_expand.input_quant": 0.0,
+            "decoders.0.1.spatial_expand.output_quant": 0.0,
+            "decoders.0.1.spatial_dw.input_quant": 0.0,
+            "decoders.0.1.spatial_dw.output_quant": 0.0,
+            "decoders.0.1.spatial_gate.left_quant": 0.0,
+            "decoders.0.1.spatial_gate.output_quant": 0.0,
+            "decoders.0.1.spatial_project.input_quant": 0.0,
+            "decoders.0.1.spatial_project.output_quant": 0.0,
+            "decoders.0.1.channel_expand.input_quant": 0.0,
+            "decoders.0.1.channel_expand.output_quant": 0.0,
+            "decoders.0.1.channel_gate.left_quant": 0.0,
+            "decoders.0.1.channel_gate.output_quant": 0.0,
+            "decoders.0.1.channel_project.input_quant": 0.0,
+            "decoders.0.1.channel_project.output_quant": 0.0,
+            "decoders.0.1.spatial_residual_quant": 0.0,
+            "decoders.0.1.channel_residual_quant": 0.0,
+            "decoders.1.0.spatial_expand.input_quant": 0.0,
+            "decoders.1.0.spatial_expand.output_quant": 0.0,
+            "decoders.1.0.spatial_dw.input_quant": 0.0,
+            "decoders.1.0.spatial_dw.output_quant": 0.0,
+            "decoders.1.0.spatial_gate.left_quant": 0.0,
+            "decoders.1.0.spatial_gate.output_quant": 0.0,
+            "decoders.1.0.spatial_project.input_quant": 0.0,
+            "decoders.1.0.spatial_project.output_quant": 0.0,
+            "decoders.1.0.channel_expand.input_quant": 0.0,
+            "decoders.1.0.channel_expand.output_quant": 0.0,
+            "decoders.1.0.channel_gate.left_quant": 0.0001220703125,
+            "decoders.1.0.channel_gate.output_quant": 0.000244140625,
+            "decoders.1.0.channel_project.input_quant": 0.0,
+            "decoders.1.0.channel_project.output_quant": 0.0,
+            "decoders.1.0.spatial_residual_quant": 0.0,
+            "decoders.1.0.channel_residual_quant": 0.0,
+            "decoders.1.1.spatial_expand.input_quant": 0.0,
+            "decoders.1.1.spatial_expand.output_quant": 0.0009765625,
+            "decoders.1.1.spatial_dw.input_quant": 0.0,
+            "decoders.1.1.spatial_dw.output_quant": 0.0,
+            "decoders.1.1.spatial_gate.left_quant": 0.0,
+            "decoders.1.1.spatial_gate.output_quant": 0.0,
+            "decoders.1.1.spatial_project.input_quant": 0.0,
+            "decoders.1.1.spatial_project.output_quant": 0.0,
+            "decoders.1.1.channel_expand.input_quant": 0.0,
+            "decoders.1.1.channel_expand.output_quant": 0.00054931640625,
+            "decoders.1.1.channel_gate.left_quant": 0.0009765625,
+            "decoders.1.1.channel_gate.output_quant": 0.000244140625,
+            "decoders.1.1.channel_project.input_quant": 0.0,
+            "decoders.1.1.channel_project.output_quant": 0.0,
+            "decoders.1.1.spatial_residual_quant": 0.0,
+            "decoders.1.1.channel_residual_quant": 0.0,
+            "decoders.2.0.spatial_expand.input_quant": 0.0001220703125,
+            "decoders.2.0.spatial_expand.output_quant": 0.000244140625,
+            "decoders.2.0.spatial_dw.input_quant": 0.0,
+            "decoders.2.0.spatial_dw.output_quant": 0.0,
+            "decoders.2.0.spatial_gate.left_quant": 0.0,
+            "decoders.2.0.spatial_gate.output_quant": 0.00067138671875,
+            "decoders.2.0.spatial_project.input_quant": 0.0,
+            "decoders.2.0.spatial_project.output_quant": 0.0,
+            "decoders.2.0.channel_expand.input_quant": 0.0,
+            "decoders.2.0.channel_expand.output_quant": 3.0517578125e-05,
+            "decoders.2.0.channel_gate.left_quant": 0.0,
+            "decoders.2.0.channel_gate.output_quant": 0.00091552734375,
+            "decoders.2.0.channel_project.input_quant": 0.0,
+            "decoders.2.0.channel_project.output_quant": 0.0,
+            "decoders.2.0.spatial_residual_quant": 0.0001220703125,
+            "decoders.2.0.channel_residual_quant": 0.0,
+            "decoders.2.1.spatial_expand.input_quant": 0.0,
+            "decoders.2.1.spatial_expand.output_quant": 3.0517578125e-05,
+            "decoders.2.1.spatial_dw.input_quant": 0.0,
+            "decoders.2.1.spatial_dw.output_quant": 0.0,
+            "decoders.2.1.spatial_gate.left_quant": 0.0,
+            "decoders.2.1.spatial_gate.output_quant": 6.103515625e-05,
+            "decoders.2.1.spatial_project.input_quant": 0.0,
+            "decoders.2.1.spatial_project.output_quant": 0.0,
+            "decoders.2.1.channel_expand.input_quant": 0.0,
+            "decoders.2.1.channel_expand.output_quant": 0.000274658203125,
+            "decoders.2.1.channel_gate.left_quant": 0.00079345703125,
+            "decoders.2.1.channel_gate.output_quant": 0.0003662109375,
+            "decoders.2.1.channel_project.input_quant": 0.00018310546875,
+            "decoders.2.1.channel_project.output_quant": 0.0,
+            "decoders.2.1.spatial_residual_quant": 0.0,
+            "decoders.2.1.channel_residual_quant": 0.0,
+            "film_stage3.feature_quant": 0.0,
+            "film_stage3.gamma_quant": 0.0,
+            "film_stage3.beta_quant": 0.0,
+            "film_stage3.output_quant": 0.0,
+            "film_middle.feature_quant": 0.0,
+            "film_middle.gamma_quant": 0.0,
+            "film_middle.beta_quant": 0.0,
+            "film_middle.output_quant": 0.0
+          },
+          "maximum": 0.0009765625,
+          "range_tuning_history": [
+            {
+              "iteration": 0,
+              "maximum": 0.00189208984375
+            },
+            {
+              "iteration": 1,
+              "maximum": 0.00189208984375
+            },
+            {
+              "iteration": 2,
+              "maximum": 0.00189208984375
+            },
+            {
+              "iteration": 3,
+              "maximum": 0.00189208984375
+            },
+            {
+              "iteration": 4,
+              "maximum": 0.00140380859375
+            },
+            {
+              "iteration": 5,
+              "maximum": 0.0009765625
+            }
+          ],
+          "passed": true
+        },
+        "reference_onnx": {
+          "profile_mode": "smoke",
+          "compile_height": 32,
+          "compile_width": 48,
+          "release_compile_height": 768,
+          "release_compile_width": 1024,
+          "raw_height": 1536,
+          "raw_width": 2048,
+          "path": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\onnx_reference\\candidate_reference_qdq.onnx",
+          "sha256": "b13c906dd5380094f2db5b4f8dc796c9a9d6fbb40051acdcbb6b9173f81f453c",
+          "operators": [
+            "Add",
+            "Cast",
+            "Clip",
+            "Constant",
+            "Conv",
+            "DequantizeLinear",
+            "Gemm",
+            "Identity",
+            "Mul",
+            "QuantizeLinear",
+            "Relu",
+            "Resize",
+            "Slice",
+            "Unsqueeze"
+          ],
+          "operator_counts": {
+            "Add": 41,
+            "Cast": 1,
+            "Clip": 6,
+            "Constant": 258,
+            "Conv": 88,
+            "DequantizeLinear": 394,
+            "Gemm": 5,
+            "Identity": 386,
+            "Mul": 74,
+            "QuantizeLinear": 394,
+            "Relu": 2,
+            "Resize": 3,
+            "Slice": 71,
+            "Unsqueeze": 14
+          },
+          "unsupported_operators": [],
+          "forbidden_gate_operators": [],
+          "dynamic_slice_inputs": [],
+          "input_shapes": {
+            "packed_raw": [
+              1,
+              4,
+              32,
+              48
+            ],
+            "condition": [
+              1,
+              24
+            ]
+          },
+          "input_element_types": {
+            "packed_raw": 1,
+            "condition": 1
+          },
+          "output_element_types": {
+            "noise_pred": 1
+          },
+          "condition_cast_count": 1,
+          "alignment": {
+            "available": true,
+            "max_abs_error": 0.0,
+            "mean_abs_error": 0.0,
+            "reason": ""
+          },
+          "gate_export": {
+            "global_monkey_patch": false,
+            "static_gates": [
+              {
+                "name": "encoders.0.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.2.0.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.0.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.1.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.1.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.2.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.2.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.3.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.3.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "middle.0.spatial_gate",
+                "channels": 112
+              },
+              {
+                "name": "middle.0.channel_gate",
+                "channels": 112
+              },
+              {
+                "name": "middle.1.spatial_gate",
+                "channels": 112
+              },
+              {
+                "name": "middle.1.channel_gate",
+                "channels": 112
+              },
+              {
+                "name": "decoders.0.0.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "decoders.0.0.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "decoders.0.1.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "decoders.0.1.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "decoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.2.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.channel_gate",
+                "channels": 16
+              }
+            ],
+            "legacy_replacements": []
+          },
+          "mixed_precision_boundary": false
+        },
+        "mixed_onnx": {
+          "profile_mode": "smoke",
+          "compile_height": 32,
+          "compile_width": 48,
+          "release_compile_height": 768,
+          "release_compile_width": 1024,
+          "raw_height": 1536,
+          "raw_width": 2048,
+          "path": "artifacts\\v6_1_cpu_smoke\\candidates\\P10-16\\onnx_mixed\\dark_preview_ryyb_4x3_mixed.onnx",
+          "sha256": "f172acf1ad9bd82ddee2dd608e0355f4a091e445fc775a4c90d1d412298aaa00",
+          "operators": [
+            "Add",
+            "Cast",
+            "Clip",
+            "Constant",
+            "Conv",
+            "DequantizeLinear",
+            "Gemm",
+            "Identity",
+            "Mul",
+            "QuantizeLinear",
+            "Relu",
+            "Resize",
+            "Slice",
+            "Unsqueeze"
+          ],
+          "operator_counts": {
+            "Add": 41,
+            "Cast": 3,
+            "Clip": 6,
+            "Constant": 258,
+            "Conv": 88,
+            "DequantizeLinear": 394,
+            "Gemm": 5,
+            "Identity": 436,
+            "Mul": 74,
+            "QuantizeLinear": 394,
+            "Relu": 2,
+            "Resize": 3,
+            "Slice": 71,
+            "Unsqueeze": 14
+          },
+          "unsupported_operators": [],
+          "forbidden_gate_operators": [],
+          "dynamic_slice_inputs": [],
+          "input_shapes": {
+            "packed_raw": [
+              1,
+              4,
+              32,
+              48
+            ],
+            "condition": [
+              1,
+              24
+            ]
+          },
+          "input_element_types": {
+            "packed_raw": 10,
+            "condition": 1
+          },
+          "output_element_types": {
+            "noise_pred": 10
+          },
+          "condition_cast_count": 1,
+          "alignment": {
+            "available": false,
+            "max_abs_error": null,
+            "mean_abs_error": null,
+            "reason": "CPU ONNX Runtime 不作为 FP16 Q/DQ 部署图数值证据；使用独立 FP32 Q/DQ Reference 并等待目标端"
+          },
+          "gate_export": {
+            "global_monkey_patch": false,
+            "static_gates": [
+              {
+                "name": "encoders.0.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.2.0.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.0.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.1.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.1.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.2.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.2.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.3.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "encoders.2.3.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "middle.0.spatial_gate",
+                "channels": 112
+              },
+              {
+                "name": "middle.0.channel_gate",
+                "channels": 112
+              },
+              {
+                "name": "middle.1.spatial_gate",
+                "channels": 112
+              },
+              {
+                "name": "middle.1.channel_gate",
+                "channels": 112
+              },
+              {
+                "name": "decoders.0.0.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "decoders.0.0.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "decoders.0.1.spatial_gate",
+                "channels": 64
+              },
+              {
+                "name": "decoders.0.1.channel_gate",
+                "channels": 64
+              },
+              {
+                "name": "decoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.2.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.channel_gate",
+                "channels": 16
+              }
+            ],
+            "legacy_replacements": []
+          },
+          "mixed_precision_boundary": true
+        },
+        "metrics": {
+          "candidate_id": "P10-16",
+          "raw_psnr_drop_db": 0.0,
+          "ssim_drop": 0.0,
+          "delta_e00_increase": 0.0,
+          "worst_camera_iso_drop_db": 0.0,
+          "macs": 34438706688,
+          "activation_peak_bytes": 50331648,
+          "cast_count": 3,
+          "qdq_count": 788,
+          "ort_p95_ms": 5.547839961946011,
+          "parameter_count": 591284,
+          "onnx_size_bytes": 1711571,
+          "max_saturation_rate": 0.0009765625,
+          "numerical_valid": true,
+          "graph_valid": true,
+          "mixed_precision_valid": true
+        }
+      },
+      "P18-16": {
+        "pruning": {
+          "target_ratio": 0.17771428917310805,
+          "parameter_count_before": 660836,
+          "parameter_count_after": 543396,
+          "parameter_reduction": 0.17771428917310805,
+          "macs_before": 46392832,
+          "macs_after": 39200256,
+          "mac_reduction": 0.15503636423833755,
+          "feature_channels": [
+            16,
+            32,
+            48,
+            128
+          ],
+          "rounds": [
+            {
+              "round": 1,
+              "stage": 2,
+              "removed_indices": [
+                6,
+                16,
+                17,
+                21,
+                28,
+                32,
+                33,
+                39,
+                43,
+                47,
+                49,
+                50,
+                52,
+                55,
+                59,
+                60
+              ],
+              "width_before": 64,
+              "width_after": 48,
+              "parameter_reduction": 0.17771428917310805
+            }
+          ]
+        },
+        "frozen": {
+          "weights": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\fp16_topology\\model_fp32.safetensors",
+          "topology": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\fp16_topology\\topology.json",
+          "model": "Conditional MobileNAFNet Dark Preview V6.1",
+          "image_channels": 4,
+          "base_width": 16,
+          "encoder_blocks": [
+            2,
+            2,
+            4
+          ],
+          "middle_blocks": 2,
+          "decoder_blocks": [
+            2,
+            2,
+            2
+          ],
+          "feature_channels": [
+            16,
+            32,
+            48,
+            128
+          ],
+          "condition_dim": 24,
+          "film_injection": [
+            "encoder_stage_2",
+            "encoder_stage_3",
+            "middle"
+          ],
+          "film_precision": {
+            "encoder_stage_2": "fp16",
+            "encoder_stage_3": "int8_dynamic_affine",
+            "middle": "int8_dynamic_affine"
+          },
+          "condition_cast": "single_fp32_to_model_dtype",
+          "output_semantics": "noise_pred",
+          "strength_policy": "inside_graph_output_scale",
+          "weights_file": "model_fp32.safetensors",
+          "weights_sha256": "9f9d36d6287f49abf8ee0520c3f3a2704e56f2645a2e0992274c8cd8e0ad8559"
+        },
+        "recovery": {
+          "default_steps": 1,
+          "maximum_steps": 1,
+          "quality_after_default": {
+            "raw_psnr_drop_db": 0.0,
+            "ssim_drop": 0.0
+          },
+          "extended_to_maximum": false,
+          "initial": {
+            "stage": "P18-16_recovery",
+            "teacher_mode": "eval_fp32_no_grad",
+            "student_amp": false,
+            "config": {
+              "stage_name": "P18-16_recovery",
+              "output_dir": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\training\\P18-16_recovery",
+              "steps": 1,
+              "learning_rate": 5e-05,
+              "weight_decay": 0.0001,
+              "gradient_clip": 1.0,
+              "accumulation_steps": 1,
+              "warmup_steps": 0,
+              "seed": 20260807,
+              "device": "cpu",
+              "student_amp": true,
+              "checkpoint_interval": 0,
+              "resume_from": null,
+              "memory_soft_limit_gb": 22.0,
+              "student_activation_checkpointing": false
+            },
+            "config_hash": "e5fc93f3f991342aad0c7ea0a507fb81cb6911987f88f7eafe683fa078ad04a2",
+            "device": "cpu",
+            "elapsed_seconds": 0.16396460006944835,
+            "peak_memory_gb": 0.0,
+            "memory_soft_limit_exceeded": false,
+            "best_step": 1,
+            "best_raw_psnr": 31.32561585594168,
+            "best_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\training\\P18-16_recovery\\best_model.safetensors",
+            "final_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\training\\P18-16_recovery\\final_model.safetensors",
+            "selected_for_next_stage": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\training\\P18-16_recovery\\best_model.safetensors",
+            "history": [
+              {
+                "step": 1,
+                "loss_total": 0.1721935123205185,
+                "loss_feature_kd": 1.116757869720459,
+                "loss_attention_kd": 0.01111010555177927,
+                "loss_temporal": 0.02482912689447403,
+                "raw_psnr": 31.32561585594168,
+                "gradient_norm": 0.18690189719200134,
+                "updated": 1
+              }
+            ]
+          },
+          "extension": null
+        },
+        "phase1": {
+          "stage": "P18-16_phase1_fullsize",
+          "config": {
+            "stage_name": "P18-16_phase1_fullsize",
+            "output_dir": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\training\\P18-16_phase1_fullsize",
+            "steps": 1,
+            "learning_rate": 1e-05,
+            "weight_decay": 0.0001,
+            "gradient_clip": 1.0,
+            "accumulation_steps": 1,
+            "warmup_steps": 0,
+            "seed": 20260807,
+            "device": "cpu",
+            "student_amp": true,
+            "checkpoint_interval": 0,
+            "resume_from": null,
+            "memory_soft_limit_gb": 22.0,
+            "student_activation_checkpointing": false
+          },
+          "config_hash": "ca494b9d44d96bad98e1f5ffcdf17326c45bf7c9d660dc81e59f6796e9936212",
+          "device": "cpu",
+          "elapsed_seconds": 0.0887796999886632,
+          "peak_memory_gb": 0.0,
+          "memory_soft_limit_exceeded": false,
+          "best_step": 1,
+          "best_raw_psnr": 31.32561585594168,
+          "best_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\training\\P18-16_phase1_fullsize\\best_model.safetensors",
+          "final_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\training\\P18-16_phase1_fullsize\\final_model.safetensors",
+          "selected_for_next_stage": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\training\\P18-16_phase1_fullsize\\best_model.safetensors",
+          "history": [
+            {
+              "step": 1,
+              "loss_total": 0.03715438395738602,
+              "raw_psnr": 31.32561585594168,
+              "gradient_norm": 0.0,
+              "updated": 1
+            }
+          ]
+        },
+        "q1": {
+          "policy": {
+            "activation_offset": true,
+            "precision_mapping": "fixed_v6_mixed",
+            "weight_bits": 8,
+            "activation_bits": 8
+          },
+          "config_hash": "187e40248a5b219dde82ce9a08018f07b39467ee235b38201f72755943d8ec61",
+          "run_through_phase": "q1",
+          "q0_quantizer_count": 276,
+          "history": [
+            {
+              "phase": "q1",
+              "step": 1,
+              "loss_total": 0.1739160716533661,
+              "loss_feature_kd": 1.133838176727295,
+              "loss_attention_kd": 0.011001297272741795,
+              "loss_temporal": 0.025228578597307205,
+              "loss_gate": 0.0,
+              "raw_psnr": 31.32561585594168,
+              "gradient_norm": 5.98991789502179e-08
+            }
+          ],
+          "film_audit": {
+            "per_camera": {
+              "main": {
+                "gamma_mean_abs_error": 0.0,
+                "gamma_max_abs_error": 0.0,
+                "beta_mean_abs_error": 0.0,
+                "beta_max_abs_error": 0.0
+              },
+              "tele": {
+                "gamma_mean_abs_error": 0.0,
+                "gamma_max_abs_error": 0.0,
+                "beta_mean_abs_error": 0.0,
+                "beta_max_abs_error": 0.0
+              }
+            },
+            "condition_encoder_quantizers": {}
+          }
+        },
+        "q1_activation_saturation_probe": {
+          "definition": "quantization_pre_range_overflow / activation_elements",
+          "frames": 8,
+          "camera_balanced": true,
+          "excludes_per_channel_weights": true,
+          "layers": {
+            "encoders.0.0.spatial_expand.input_quant": 0.0003662109375,
+            "encoders.0.0.spatial_expand.output_quant": 0.00018310546875,
+            "encoders.0.0.spatial_dw.input_quant": 0.000244140625,
+            "encoders.0.0.spatial_dw.output_quant": 0.0,
+            "encoders.0.0.spatial_gate.left_quant": 0.0,
+            "encoders.0.0.spatial_gate.output_quant": 0.00018310546875,
+            "encoders.0.0.spatial_project.input_quant": 0.0,
+            "encoders.0.0.spatial_project.output_quant": 0.0,
+            "encoders.0.0.channel_expand.input_quant": 0.0003662109375,
+            "encoders.0.0.channel_expand.output_quant": 0.000732421875,
+            "encoders.0.0.channel_gate.left_quant": 0.0,
+            "encoders.0.0.channel_gate.output_quant": 0.00030517578125,
+            "encoders.0.0.channel_project.input_quant": 0.0,
+            "encoders.0.0.channel_project.output_quant": 0.0,
+            "encoders.0.0.spatial_residual_quant": 0.0003662109375,
+            "encoders.0.0.channel_residual_quant": 0.0003662109375,
+            "encoders.0.1.spatial_expand.input_quant": 0.0,
+            "encoders.0.1.spatial_expand.output_quant": 0.0,
+            "encoders.0.1.spatial_dw.input_quant": 0.0,
+            "encoders.0.1.spatial_dw.output_quant": 3.0517578125e-05,
+            "encoders.0.1.spatial_gate.left_quant": 0.0,
+            "encoders.0.1.spatial_gate.output_quant": 6.103515625e-05,
+            "encoders.0.1.spatial_project.input_quant": 0.0,
+            "encoders.0.1.spatial_project.output_quant": 0.0,
+            "encoders.0.1.channel_expand.input_quant": 0.0003662109375,
+            "encoders.0.1.channel_expand.output_quant": 0.000335693359375,
+            "encoders.0.1.channel_gate.left_quant": 0.0,
+            "encoders.0.1.channel_gate.output_quant": 0.00018310546875,
+            "encoders.0.1.channel_project.input_quant": 0.0,
+            "encoders.0.1.channel_project.output_quant": 0.0,
+            "encoders.0.1.spatial_residual_quant": 0.0003662109375,
+            "encoders.0.1.channel_residual_quant": 0.0003662109375,
+            "encoders.1.0.spatial_expand.input_quant": 0.0,
+            "encoders.1.0.spatial_expand.output_quant": 0.0,
+            "encoders.1.0.spatial_dw.input_quant": 0.0,
+            "encoders.1.0.spatial_dw.output_quant": 0.0,
+            "encoders.1.0.spatial_gate.left_quant": 0.0,
+            "encoders.1.0.spatial_gate.output_quant": 0.0,
+            "encoders.1.0.spatial_project.input_quant": 0.0,
+            "encoders.1.0.spatial_project.output_quant": 0.0,
+            "encoders.1.0.channel_expand.input_quant": 0.0,
+            "encoders.1.0.channel_expand.output_quant": 0.00054931640625,
+            "encoders.1.0.channel_gate.left_quant": 0.0,
+            "encoders.1.0.channel_gate.output_quant": 0.0,
+            "encoders.1.0.channel_project.input_quant": 0.0,
+            "encoders.1.0.channel_project.output_quant": 0.0,
+            "encoders.1.0.spatial_residual_quant": 0.0,
+            "encoders.1.0.channel_residual_quant": 0.0,
+            "encoders.1.1.spatial_expand.input_quant": 0.0,
+            "encoders.1.1.spatial_expand.output_quant": 0.0,
+            "encoders.1.1.spatial_dw.input_quant": 0.0,
+            "encoders.1.1.spatial_dw.output_quant": 0.0,
+            "encoders.1.1.spatial_gate.left_quant": 0.0,
+            "encoders.1.1.spatial_gate.output_quant": 0.0,
+            "encoders.1.1.spatial_project.input_quant": 0.0,
+            "encoders.1.1.spatial_project.output_quant": 0.0,
+            "encoders.1.1.channel_expand.input_quant": 0.0,
+            "encoders.1.1.channel_expand.output_quant": 6.103515625e-05,
+            "encoders.1.1.channel_gate.left_quant": 0.0001220703125,
+            "encoders.1.1.channel_gate.output_quant": 0.0001220703125,
+            "encoders.1.1.channel_project.input_quant": 0.0,
+            "encoders.1.1.channel_project.output_quant": 0.0,
+            "encoders.1.1.spatial_residual_quant": 0.0,
+            "encoders.1.1.channel_residual_quant": 0.0,
+            "encoders.2.0.spatial_expand.input_quant": 0.0,
+            "encoders.2.0.spatial_expand.output_quant": 0.0,
+            "encoders.2.0.spatial_dw.input_quant": 0.0,
+            "encoders.2.0.spatial_dw.output_quant": 0.0,
+            "encoders.2.0.spatial_gate.left_quant": 0.0,
+            "encoders.2.0.spatial_gate.output_quant": 0.0,
+            "encoders.2.0.spatial_project.input_quant": 0.0,
+            "encoders.2.0.spatial_project.output_quant": 0.0,
+            "encoders.2.0.channel_expand.input_quant": 0.0,
+            "encoders.2.0.channel_expand.output_quant": 0.0,
+            "encoders.2.0.channel_gate.left_quant": 0.0,
+            "encoders.2.0.channel_gate.output_quant": 0.0,
+            "encoders.2.0.channel_project.input_quant": 0.0,
+            "encoders.2.0.channel_project.output_quant": 0.0,
+            "encoders.2.0.spatial_residual_quant": 0.0,
+            "encoders.2.0.channel_residual_quant": 0.0,
+            "encoders.2.1.spatial_expand.input_quant": 0.0,
+            "encoders.2.1.spatial_expand.output_quant": 0.0,
+            "encoders.2.1.spatial_dw.input_quant": 0.0,
+            "encoders.2.1.spatial_dw.output_quant": 0.0,
+            "encoders.2.1.spatial_gate.left_quant": 0.0,
+            "encoders.2.1.spatial_gate.output_quant": 0.0,
+            "encoders.2.1.spatial_project.input_quant": 0.0,
+            "encoders.2.1.spatial_project.output_quant": 0.0,
+            "encoders.2.1.channel_expand.input_quant": 0.0,
+            "encoders.2.1.channel_expand.output_quant": 0.0,
+            "encoders.2.1.channel_gate.left_quant": 0.0,
+            "encoders.2.1.channel_gate.output_quant": 0.0,
+            "encoders.2.1.channel_project.input_quant": 0.0,
+            "encoders.2.1.channel_project.output_quant": 0.0,
+            "encoders.2.1.spatial_residual_quant": 0.0,
+            "encoders.2.1.channel_residual_quant": 0.0,
+            "encoders.2.2.spatial_expand.input_quant": 0.0,
+            "encoders.2.2.spatial_expand.output_quant": 0.0,
+            "encoders.2.2.spatial_dw.input_quant": 0.0,
+            "encoders.2.2.spatial_dw.output_quant": 0.0,
+            "encoders.2.2.spatial_gate.left_quant": 0.0,
+            "encoders.2.2.spatial_gate.output_quant": 0.0,
+            "encoders.2.2.spatial_project.input_quant": 0.0,
+            "encoders.2.2.spatial_project.output_quant": 0.0,
+            "encoders.2.2.channel_expand.input_quant": 0.0,
+            "encoders.2.2.channel_expand.output_quant": 0.0,
+            "encoders.2.2.channel_gate.left_quant": 0.0,
+            "encoders.2.2.channel_gate.output_quant": 0.00032552084303461015,
+            "encoders.2.2.channel_project.input_quant": 0.0,
+            "encoders.2.2.channel_project.output_quant": 0.0,
+            "encoders.2.2.spatial_residual_quant": 0.0,
+            "encoders.2.2.channel_residual_quant": 0.0,
+            "encoders.2.3.spatial_expand.input_quant": 0.0,
+            "encoders.2.3.spatial_expand.output_quant": 0.0,
+            "encoders.2.3.spatial_dw.input_quant": 0.0,
+            "encoders.2.3.spatial_dw.output_quant": 0.0,
+            "encoders.2.3.spatial_gate.left_quant": 0.0,
+            "encoders.2.3.spatial_gate.output_quant": 0.0,
+            "encoders.2.3.spatial_project.input_quant": 0.0,
+            "encoders.2.3.spatial_project.output_quant": 0.0,
+            "encoders.2.3.channel_expand.input_quant": 0.0,
+            "encoders.2.3.channel_expand.output_quant": 0.0,
+            "encoders.2.3.channel_gate.left_quant": 0.0,
+            "encoders.2.3.channel_gate.output_quant": 0.0,
+            "encoders.2.3.channel_project.input_quant": 0.0,
+            "encoders.2.3.channel_project.output_quant": 0.0,
+            "encoders.2.3.spatial_residual_quant": 0.0,
+            "encoders.2.3.channel_residual_quant": 0.0,
+            "downs.0.input_quant": 0.0,
+            "downs.0.output_quant": 0.0,
+            "downs.1.input_quant": 0.0,
+            "downs.1.output_quant": 0.0,
+            "downs.2.input_quant": 0.0,
+            "downs.2.output_quant": 0.0,
+            "middle.0.spatial_expand.input_quant": 0.0,
+            "middle.0.spatial_expand.output_quant": 0.0,
+            "middle.0.spatial_dw.input_quant": 0.0,
+            "middle.0.spatial_dw.output_quant": 0.0,
+            "middle.0.spatial_gate.left_quant": 0.0,
+            "middle.0.spatial_gate.output_quant": 0.0,
+            "middle.0.spatial_project.input_quant": 0.0,
+            "middle.0.spatial_project.output_quant": 0.0,
+            "middle.0.channel_expand.input_quant": 0.0,
+            "middle.0.channel_expand.output_quant": 0.0,
+            "middle.0.channel_gate.left_quant": 0.0,
+            "middle.0.channel_gate.output_quant": 0.0,
+            "middle.0.channel_project.input_quant": 0.0,
+            "middle.0.channel_project.output_quant": 0.0,
+            "middle.0.spatial_residual_quant": 0.0,
+            "middle.0.channel_residual_quant": 0.0,
+            "middle.1.spatial_expand.input_quant": 0.0,
+            "middle.1.spatial_expand.output_quant": 0.0,
+            "middle.1.spatial_dw.input_quant": 0.0,
+            "middle.1.spatial_dw.output_quant": 0.0,
+            "middle.1.spatial_gate.left_quant": 0.0,
+            "middle.1.spatial_gate.output_quant": 0.0009765625,
+            "middle.1.spatial_project.input_quant": 0.0,
+            "middle.1.spatial_project.output_quant": 0.0,
+            "middle.1.channel_expand.input_quant": 0.0,
+            "middle.1.channel_expand.output_quant": 0.0,
+            "middle.1.channel_gate.left_quant": 0.0,
+            "middle.1.channel_gate.output_quant": 0.0,
+            "middle.1.channel_project.input_quant": 0.0,
+            "middle.1.channel_project.output_quant": 0.0,
+            "middle.1.spatial_residual_quant": 0.0,
+            "middle.1.channel_residual_quant": 0.0,
+            "ups.0.conv.input_quant": 0.0,
+            "ups.0.conv.output_quant": 0.0,
+            "ups.1.conv.input_quant": 0.0,
+            "ups.1.conv.output_quant": 0.00048828125,
+            "ups.2.conv.input_quant": 0.000732421875,
+            "ups.2.conv.output_quant": 0.0003662109375,
+            "decoders.0.0.spatial_expand.input_quant": 0.0,
+            "decoders.0.0.spatial_expand.output_quant": 0.0,
+            "decoders.0.0.spatial_dw.input_quant": 0.0,
+            "decoders.0.0.spatial_dw.output_quant": 0.0,
+            "decoders.0.0.spatial_gate.left_quant": 0.0,
+            "decoders.0.0.spatial_gate.output_quant": 0.0,
+            "decoders.0.0.spatial_project.input_quant": 0.0,
+            "decoders.0.0.spatial_project.output_quant": 0.0,
+            "decoders.0.0.channel_expand.input_quant": 0.0,
+            "decoders.0.0.channel_expand.output_quant": 0.0,
+            "decoders.0.0.channel_gate.left_quant": 0.0,
+            "decoders.0.0.channel_gate.output_quant": 0.00032552084303461015,
+            "decoders.0.0.channel_project.input_quant": 0.0,
+            "decoders.0.0.channel_project.output_quant": 0.0,
+            "decoders.0.0.spatial_residual_quant": 0.0,
+            "decoders.0.0.channel_residual_quant": 0.0,
+            "decoders.0.1.spatial_expand.input_quant": 0.0,
+            "decoders.0.1.spatial_expand.output_quant": 0.0,
+            "decoders.0.1.spatial_dw.input_quant": 0.0,
+            "decoders.0.1.spatial_dw.output_quant": 0.0,
+            "decoders.0.1.spatial_gate.left_quant": 0.0,
+            "decoders.0.1.spatial_gate.output_quant": 0.0,
+            "decoders.0.1.spatial_project.input_quant": 0.0,
+            "decoders.0.1.spatial_project.output_quant": 0.0,
+            "decoders.0.1.channel_expand.input_quant": 0.0,
+            "decoders.0.1.channel_expand.output_quant": 0.0,
+            "decoders.0.1.channel_gate.left_quant": 0.0,
+            "decoders.0.1.channel_gate.output_quant": 0.0,
+            "decoders.0.1.channel_project.input_quant": 0.0,
+            "decoders.0.1.channel_project.output_quant": 0.0,
+            "decoders.0.1.spatial_residual_quant": 0.0,
+            "decoders.0.1.channel_residual_quant": 0.0,
+            "decoders.1.0.spatial_expand.input_quant": 0.0,
+            "decoders.1.0.spatial_expand.output_quant": 6.103515625e-05,
+            "decoders.1.0.spatial_dw.input_quant": 6.103515625e-05,
+            "decoders.1.0.spatial_dw.output_quant": 0.0,
+            "decoders.1.0.spatial_gate.left_quant": 0.0,
+            "decoders.1.0.spatial_gate.output_quant": 0.0,
+            "decoders.1.0.spatial_project.input_quant": 0.0,
+            "decoders.1.0.spatial_project.output_quant": 0.0,
+            "decoders.1.0.channel_expand.input_quant": 0.0,
+            "decoders.1.0.channel_expand.output_quant": 0.0,
+            "decoders.1.0.channel_gate.left_quant": 0.0,
+            "decoders.1.0.channel_gate.output_quant": 0.0001220703125,
+            "decoders.1.0.channel_project.input_quant": 0.0,
+            "decoders.1.0.channel_project.output_quant": 0.0,
+            "decoders.1.0.spatial_residual_quant": 0.0,
+            "decoders.1.0.channel_residual_quant": 0.0,
+            "decoders.1.1.spatial_expand.input_quant": 0.0,
+            "decoders.1.1.spatial_expand.output_quant": 0.00067138671875,
+            "decoders.1.1.spatial_dw.input_quant": 0.0,
+            "decoders.1.1.spatial_dw.output_quant": 0.0,
+            "decoders.1.1.spatial_gate.left_quant": 0.0,
+            "decoders.1.1.spatial_gate.output_quant": 0.0,
+            "decoders.1.1.spatial_project.input_quant": 0.0,
+            "decoders.1.1.spatial_project.output_quant": 0.0,
+            "decoders.1.1.channel_expand.input_quant": 0.0,
+            "decoders.1.1.channel_expand.output_quant": 0.00042724609375,
+            "decoders.1.1.channel_gate.left_quant": 0.0,
+            "decoders.1.1.channel_gate.output_quant": 0.000244140625,
+            "decoders.1.1.channel_project.input_quant": 0.0,
+            "decoders.1.1.channel_project.output_quant": 0.0,
+            "decoders.1.1.spatial_residual_quant": 0.0,
+            "decoders.1.1.channel_residual_quant": 0.0,
+            "decoders.2.0.spatial_expand.input_quant": 0.0001220703125,
+            "decoders.2.0.spatial_expand.output_quant": 0.000152587890625,
+            "decoders.2.0.spatial_dw.input_quant": 0.0,
+            "decoders.2.0.spatial_dw.output_quant": 0.0,
+            "decoders.2.0.spatial_gate.left_quant": 0.0,
+            "decoders.2.0.spatial_gate.output_quant": 0.00054931640625,
+            "decoders.2.0.spatial_project.input_quant": 0.0,
+            "decoders.2.0.spatial_project.output_quant": 0.0,
+            "decoders.2.0.channel_expand.input_quant": 0.0,
+            "decoders.2.0.channel_expand.output_quant": 3.0517578125e-05,
+            "decoders.2.0.channel_gate.left_quant": 0.0,
+            "decoders.2.0.channel_gate.output_quant": 0.00091552734375,
+            "decoders.2.0.channel_project.input_quant": 0.0,
+            "decoders.2.0.channel_project.output_quant": 0.0,
+            "decoders.2.0.spatial_residual_quant": 0.0001220703125,
+            "decoders.2.0.channel_residual_quant": 0.0,
+            "decoders.2.1.spatial_expand.input_quant": 0.0,
+            "decoders.2.1.spatial_expand.output_quant": 6.103515625e-05,
+            "decoders.2.1.spatial_dw.input_quant": 0.0,
+            "decoders.2.1.spatial_dw.output_quant": 0.0,
+            "decoders.2.1.spatial_gate.left_quant": 0.0,
+            "decoders.2.1.spatial_gate.output_quant": 6.103515625e-05,
+            "decoders.2.1.spatial_project.input_quant": 0.0,
+            "decoders.2.1.spatial_project.output_quant": 0.0,
+            "decoders.2.1.channel_expand.input_quant": 0.0,
+            "decoders.2.1.channel_expand.output_quant": 0.0003662109375,
+            "decoders.2.1.channel_gate.left_quant": 0.0,
+            "decoders.2.1.channel_gate.output_quant": 0.0003662109375,
+            "decoders.2.1.channel_project.input_quant": 0.00018310546875,
+            "decoders.2.1.channel_project.output_quant": 0.0,
+            "decoders.2.1.spatial_residual_quant": 0.0,
+            "decoders.2.1.channel_residual_quant": 0.0,
+            "film_stage3.feature_quant": 0.0,
+            "film_stage3.gamma_quant": 0.0,
+            "film_stage3.beta_quant": 0.0,
+            "film_stage3.output_quant": 0.0,
+            "film_middle.feature_quant": 0.0,
+            "film_middle.gamma_quant": 0.0,
+            "film_middle.beta_quant": 0.0,
+            "film_middle.output_quant": 0.0
+          },
+          "maximum": 0.0009765625,
+          "range_tuning_history": [
+            {
+              "iteration": 0,
+              "maximum": 0.002197265625
+            },
+            {
+              "iteration": 1,
+              "maximum": 0.00189208984375
+            },
+            {
+              "iteration": 2,
+              "maximum": 0.00189208984375
+            },
+            {
+              "iteration": 3,
+              "maximum": 0.00189208984375
+            },
+            {
+              "iteration": 4,
+              "maximum": 0.0013427734375
+            },
+            {
+              "iteration": 5,
+              "maximum": 0.0009765625
+            }
+          ],
+          "passed": true
+        },
+        "reference_onnx": {
+          "profile_mode": "smoke",
+          "compile_height": 32,
+          "compile_width": 48,
+          "release_compile_height": 768,
+          "release_compile_width": 1024,
+          "raw_height": 1536,
+          "raw_width": 2048,
+          "path": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\onnx_reference\\candidate_reference_qdq.onnx",
+          "sha256": "c513dc68454dd20e30cb71d3cb995e654f33e0f78b6f9e7a1f3f990ce0ce62ae",
+          "operators": [
+            "Add",
+            "Cast",
+            "Clip",
+            "Constant",
+            "Conv",
+            "DequantizeLinear",
+            "Gemm",
+            "Identity",
+            "Mul",
+            "QuantizeLinear",
+            "Relu",
+            "Resize",
+            "Slice",
+            "Unsqueeze"
+          ],
+          "operator_counts": {
+            "Add": 41,
+            "Cast": 1,
+            "Clip": 6,
+            "Constant": 258,
+            "Conv": 88,
+            "DequantizeLinear": 394,
+            "Gemm": 5,
+            "Identity": 386,
+            "Mul": 74,
+            "QuantizeLinear": 394,
+            "Relu": 2,
+            "Resize": 3,
+            "Slice": 71,
+            "Unsqueeze": 14
+          },
+          "unsupported_operators": [],
+          "forbidden_gate_operators": [],
+          "dynamic_slice_inputs": [],
+          "input_shapes": {
+            "packed_raw": [
+              1,
+              4,
+              32,
+              48
+            ],
+            "condition": [
+              1,
+              24
+            ]
+          },
+          "input_element_types": {
+            "packed_raw": 1,
+            "condition": 1
+          },
+          "output_element_types": {
+            "noise_pred": 1
+          },
+          "condition_cast_count": 1,
+          "alignment": {
+            "available": true,
+            "max_abs_error": 0.0,
+            "mean_abs_error": 0.0,
+            "reason": ""
+          },
+          "gate_export": {
+            "global_monkey_patch": false,
+            "static_gates": [
+              {
+                "name": "encoders.0.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.2.0.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.0.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.1.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.1.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.2.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.2.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.3.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.3.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "middle.0.spatial_gate",
+                "channels": 128
+              },
+              {
+                "name": "middle.0.channel_gate",
+                "channels": 128
+              },
+              {
+                "name": "middle.1.spatial_gate",
+                "channels": 128
+              },
+              {
+                "name": "middle.1.channel_gate",
+                "channels": 128
+              },
+              {
+                "name": "decoders.0.0.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.0.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.1.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.1.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.2.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.channel_gate",
+                "channels": 16
+              }
+            ],
+            "legacy_replacements": []
+          },
+          "mixed_precision_boundary": false
+        },
+        "mixed_onnx": {
+          "profile_mode": "smoke",
+          "compile_height": 32,
+          "compile_width": 48,
+          "release_compile_height": 768,
+          "release_compile_width": 1024,
+          "raw_height": 1536,
+          "raw_width": 2048,
+          "path": "artifacts\\v6_1_cpu_smoke\\candidates\\P18-16\\onnx_mixed\\dark_preview_ryyb_4x3_mixed.onnx",
+          "sha256": "c52c6d4a2d72ee8d1ec7583a7f8fb50643b6981bdebdf64e29f0ab855a3b5a7e",
+          "operators": [
+            "Add",
+            "Cast",
+            "Clip",
+            "Constant",
+            "Conv",
+            "DequantizeLinear",
+            "Gemm",
+            "Identity",
+            "Mul",
+            "QuantizeLinear",
+            "Relu",
+            "Resize",
+            "Slice",
+            "Unsqueeze"
+          ],
+          "operator_counts": {
+            "Add": 41,
+            "Cast": 3,
+            "Clip": 6,
+            "Constant": 258,
+            "Conv": 88,
+            "DequantizeLinear": 394,
+            "Gemm": 5,
+            "Identity": 438,
+            "Mul": 74,
+            "QuantizeLinear": 394,
+            "Relu": 2,
+            "Resize": 3,
+            "Slice": 71,
+            "Unsqueeze": 14
+          },
+          "unsupported_operators": [],
+          "forbidden_gate_operators": [],
+          "dynamic_slice_inputs": [],
+          "input_shapes": {
+            "packed_raw": [
+              1,
+              4,
+              32,
+              48
+            ],
+            "condition": [
+              1,
+              24
+            ]
+          },
+          "input_element_types": {
+            "packed_raw": 10,
+            "condition": 1
+          },
+          "output_element_types": {
+            "noise_pred": 10
+          },
+          "condition_cast_count": 1,
+          "alignment": {
+            "available": false,
+            "max_abs_error": null,
+            "mean_abs_error": null,
+            "reason": "CPU ONNX Runtime 不作为 FP16 Q/DQ 部署图数值证据；使用独立 FP32 Q/DQ Reference 并等待目标端"
+          },
+          "gate_export": {
+            "global_monkey_patch": false,
+            "static_gates": [
+              {
+                "name": "encoders.0.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.2.0.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.0.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.1.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.1.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.2.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.2.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.3.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.3.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "middle.0.spatial_gate",
+                "channels": 128
+              },
+              {
+                "name": "middle.0.channel_gate",
+                "channels": 128
+              },
+              {
+                "name": "middle.1.spatial_gate",
+                "channels": 128
+              },
+              {
+                "name": "middle.1.channel_gate",
+                "channels": 128
+              },
+              {
+                "name": "decoders.0.0.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.0.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.1.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.1.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.2.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.channel_gate",
+                "channels": 16
+              }
+            ],
+            "legacy_replacements": []
+          },
+          "mixed_precision_boundary": true
+        },
+        "metrics": {
+          "candidate_id": "P18-16",
+          "raw_psnr_drop_db": 0.0,
+          "ssim_drop": 0.0,
+          "delta_e00_increase": 0.0,
+          "worst_camera_iso_drop_db": 0.0,
+          "macs": 30057494016,
+          "activation_peak_bytes": 50331648,
+          "cast_count": 3,
+          "qdq_count": 788,
+          "ort_p95_ms": 4.648320050910115,
+          "parameter_count": 543396,
+          "onnx_size_bytes": 1615129,
+          "max_saturation_rate": 0.0009765625,
+          "numerical_valid": true,
+          "graph_valid": true,
+          "mixed_precision_valid": true
+        }
+      },
+      "P36-16": {
+        "pruning": {
+          "target_ratio": 0.364968010217361,
+          "parameter_count_before": 660836,
+          "parameter_count_after": 419652,
+          "parameter_reduction": 0.364968010217361,
+          "macs_before": 46392832,
+          "macs_after": 36691456,
+          "mac_reduction": 0.2091136837690788,
+          "feature_channels": [
+            16,
+            32,
+            48,
+            96
+          ],
+          "rounds": [
+            {
+              "round": 1,
+              "stage": 2,
+              "removed_indices": [
+                6,
+                16,
+                17,
+                21,
+                28,
+                32,
+                33,
+                39,
+                43,
+                47,
+                49,
+                50,
+                52,
+                55,
+                59,
+                60
+              ],
+              "width_before": 64,
+              "width_after": 48,
+              "parameter_reduction": 0.17771428917310805
+            },
+            {
+              "round": 2,
+              "stage": 3,
+              "removed_indices": [
+                4,
+                12,
+                18,
+                21,
+                33,
+                51,
+                56,
+                58,
+                61,
+                82,
+                95,
+                106,
+                107,
+                110,
+                120,
+                125
+              ],
+              "width_before": 128,
+              "width_after": 112,
+              "parameter_reduction": 0.2759898068507164
+            },
+            {
+              "round": 3,
+              "stage": 3,
+              "removed_indices": [
+                6,
+                10,
+                11,
+                18,
+                42,
+                45,
+                46,
+                54,
+                58,
+                68,
+                78,
+                86,
+                88,
+                90,
+                103,
+                104
+              ],
+              "width_before": 112,
+              "width_after": 96,
+              "parameter_reduction": 0.364968010217361
+            }
+          ]
+        },
+        "frozen": {
+          "weights": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\fp16_topology\\model_fp32.safetensors",
+          "topology": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\fp16_topology\\topology.json",
+          "model": "Conditional MobileNAFNet Dark Preview V6.1",
+          "image_channels": 4,
+          "base_width": 16,
+          "encoder_blocks": [
+            2,
+            2,
+            4
+          ],
+          "middle_blocks": 2,
+          "decoder_blocks": [
+            2,
+            2,
+            2
+          ],
+          "feature_channels": [
+            16,
+            32,
+            48,
+            96
+          ],
+          "condition_dim": 24,
+          "film_injection": [
+            "encoder_stage_2",
+            "encoder_stage_3",
+            "middle"
+          ],
+          "film_precision": {
+            "encoder_stage_2": "fp16",
+            "encoder_stage_3": "int8_dynamic_affine",
+            "middle": "int8_dynamic_affine"
+          },
+          "condition_cast": "single_fp32_to_model_dtype",
+          "output_semantics": "noise_pred",
+          "strength_policy": "inside_graph_output_scale",
+          "weights_file": "model_fp32.safetensors",
+          "weights_sha256": "c43a4bb3feaf63334c626d6ef23848b2deb5ca97528911cf9d22ce732e0b404a"
+        },
+        "recovery": {
+          "default_steps": 1,
+          "maximum_steps": 1,
+          "quality_after_default": {
+            "raw_psnr_drop_db": 0.0,
+            "ssim_drop": 0.0
+          },
+          "extended_to_maximum": false,
+          "initial": {
+            "stage": "P36-16_recovery",
+            "teacher_mode": "eval_fp32_no_grad",
+            "student_amp": false,
+            "config": {
+              "stage_name": "P36-16_recovery",
+              "output_dir": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\training\\P36-16_recovery",
+              "steps": 1,
+              "learning_rate": 5e-05,
+              "weight_decay": 0.0001,
+              "gradient_clip": 1.0,
+              "accumulation_steps": 1,
+              "warmup_steps": 0,
+              "seed": 20260807,
+              "device": "cpu",
+              "student_amp": true,
+              "checkpoint_interval": 0,
+              "resume_from": null,
+              "memory_soft_limit_gb": 22.0,
+              "student_activation_checkpointing": false
+            },
+            "config_hash": "85648085e067493ea8650c6764f674ee5207706ecbf46bbea21bebff1f22943a",
+            "device": "cpu",
+            "elapsed_seconds": 0.16612469987012446,
+            "peak_memory_gb": 0.0,
+            "memory_soft_limit_exceeded": false,
+            "best_step": 1,
+            "best_raw_psnr": 31.32561585594168,
+            "best_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\training\\P36-16_recovery\\best_model.safetensors",
+            "final_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\training\\P36-16_recovery\\final_model.safetensors",
+            "selected_for_next_stage": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\training\\P36-16_recovery\\best_model.safetensors",
+            "history": [
+              {
+                "step": 1,
+                "loss_total": 0.17188715934753418,
+                "loss_feature_kd": 1.1135649681091309,
+                "loss_attention_kd": 0.011322400532662868,
+                "loss_temporal": 0.02487540803849697,
+                "raw_psnr": 31.32561585594168,
+                "gradient_norm": 0.17662976682186127,
+                "updated": 1
+              }
+            ]
+          },
+          "extension": null
+        },
+        "phase1": {
+          "stage": "P36-16_phase1_fullsize",
+          "config": {
+            "stage_name": "P36-16_phase1_fullsize",
+            "output_dir": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\training\\P36-16_phase1_fullsize",
+            "steps": 1,
+            "learning_rate": 1e-05,
+            "weight_decay": 0.0001,
+            "gradient_clip": 1.0,
+            "accumulation_steps": 1,
+            "warmup_steps": 0,
+            "seed": 20260807,
+            "device": "cpu",
+            "student_amp": true,
+            "checkpoint_interval": 0,
+            "resume_from": null,
+            "memory_soft_limit_gb": 22.0,
+            "student_activation_checkpointing": false
+          },
+          "config_hash": "b7cc88a0b73f862430fad9575b8283e544d43b5d12051d3389f4848144cb0e10",
+          "device": "cpu",
+          "elapsed_seconds": 0.09833290008828044,
+          "peak_memory_gb": 0.0,
+          "memory_soft_limit_exceeded": false,
+          "best_step": 1,
+          "best_raw_psnr": 31.32561585594168,
+          "best_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\training\\P36-16_phase1_fullsize\\best_model.safetensors",
+          "final_model": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\training\\P36-16_phase1_fullsize\\final_model.safetensors",
+          "selected_for_next_stage": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\training\\P36-16_phase1_fullsize\\best_model.safetensors",
+          "history": [
+            {
+              "step": 1,
+              "loss_total": 0.03715438395738602,
+              "raw_psnr": 31.32561585594168,
+              "gradient_norm": 0.0,
+              "updated": 1
+            }
+          ]
+        },
+        "q1": {
+          "policy": {
+            "activation_offset": true,
+            "precision_mapping": "fixed_v6_mixed",
+            "weight_bits": 8,
+            "activation_bits": 8
+          },
+          "config_hash": "187e40248a5b219dde82ce9a08018f07b39467ee235b38201f72755943d8ec61",
+          "run_through_phase": "q1",
+          "q0_quantizer_count": 276,
+          "history": [
+            {
+              "phase": "q1",
+              "step": 1,
+              "loss_total": 0.17362011969089508,
+              "loss_feature_kd": 1.130904197692871,
+              "loss_attention_kd": 0.011143148876726627,
+              "loss_temporal": 0.025035830214619637,
+              "loss_gate": 0.0,
+              "raw_psnr": 31.32561585594168,
+              "gradient_norm": 2.1158623297878876e-08
+            }
+          ],
+          "film_audit": {
+            "per_camera": {
+              "main": {
+                "gamma_mean_abs_error": 0.0,
+                "gamma_max_abs_error": 0.0,
+                "beta_mean_abs_error": 0.0,
+                "beta_max_abs_error": 0.0
+              },
+              "tele": {
+                "gamma_mean_abs_error": 0.0,
+                "gamma_max_abs_error": 0.0,
+                "beta_mean_abs_error": 0.0,
+                "beta_max_abs_error": 0.0
+              }
+            },
+            "condition_encoder_quantizers": {}
+          }
+        },
+        "q1_activation_saturation_probe": {
+          "definition": "quantization_pre_range_overflow / activation_elements",
+          "frames": 8,
+          "camera_balanced": true,
+          "excludes_per_channel_weights": true,
+          "layers": {
+            "encoders.0.0.spatial_expand.input_quant": 0.0003662109375,
+            "encoders.0.0.spatial_expand.output_quant": 0.00018310546875,
+            "encoders.0.0.spatial_dw.input_quant": 0.0,
+            "encoders.0.0.spatial_dw.output_quant": 0.0,
+            "encoders.0.0.spatial_gate.left_quant": 0.0,
+            "encoders.0.0.spatial_gate.output_quant": 0.00018310546875,
+            "encoders.0.0.spatial_project.input_quant": 0.0,
+            "encoders.0.0.spatial_project.output_quant": 0.0,
+            "encoders.0.0.channel_expand.input_quant": 0.0003662109375,
+            "encoders.0.0.channel_expand.output_quant": 0.000732421875,
+            "encoders.0.0.channel_gate.left_quant": 0.0,
+            "encoders.0.0.channel_gate.output_quant": 0.00030517578125,
+            "encoders.0.0.channel_project.input_quant": 0.0,
+            "encoders.0.0.channel_project.output_quant": 0.0,
+            "encoders.0.0.spatial_residual_quant": 0.0003662109375,
+            "encoders.0.0.channel_residual_quant": 0.0003662109375,
+            "encoders.0.1.spatial_expand.input_quant": 0.0,
+            "encoders.0.1.spatial_expand.output_quant": 0.0,
+            "encoders.0.1.spatial_dw.input_quant": 0.0,
+            "encoders.0.1.spatial_dw.output_quant": 3.0517578125e-05,
+            "encoders.0.1.spatial_gate.left_quant": 0.0,
+            "encoders.0.1.spatial_gate.output_quant": 0.0,
+            "encoders.0.1.spatial_project.input_quant": 0.0,
+            "encoders.0.1.spatial_project.output_quant": 0.0,
+            "encoders.0.1.channel_expand.input_quant": 0.0003662109375,
+            "encoders.0.1.channel_expand.output_quant": 0.000335693359375,
+            "encoders.0.1.channel_gate.left_quant": 0.0,
+            "encoders.0.1.channel_gate.output_quant": 0.00018310546875,
+            "encoders.0.1.channel_project.input_quant": 0.0,
+            "encoders.0.1.channel_project.output_quant": 0.0,
+            "encoders.0.1.spatial_residual_quant": 0.00030517578125,
+            "encoders.0.1.channel_residual_quant": 6.103515625e-05,
+            "encoders.1.0.spatial_expand.input_quant": 0.0,
+            "encoders.1.0.spatial_expand.output_quant": 0.0,
+            "encoders.1.0.spatial_dw.input_quant": 0.0,
+            "encoders.1.0.spatial_dw.output_quant": 0.0,
+            "encoders.1.0.spatial_gate.left_quant": 0.0,
+            "encoders.1.0.spatial_gate.output_quant": 0.0,
+            "encoders.1.0.spatial_project.input_quant": 0.0,
+            "encoders.1.0.spatial_project.output_quant": 0.0,
+            "encoders.1.0.channel_expand.input_quant": 0.0,
+            "encoders.1.0.channel_expand.output_quant": 0.00054931640625,
+            "encoders.1.0.channel_gate.left_quant": 0.0,
+            "encoders.1.0.channel_gate.output_quant": 0.0,
+            "encoders.1.0.channel_project.input_quant": 0.0,
+            "encoders.1.0.channel_project.output_quant": 0.0,
+            "encoders.1.0.spatial_residual_quant": 0.0,
+            "encoders.1.0.channel_residual_quant": 0.0,
+            "encoders.1.1.spatial_expand.input_quant": 0.0,
+            "encoders.1.1.spatial_expand.output_quant": 0.0,
+            "encoders.1.1.spatial_dw.input_quant": 0.0,
+            "encoders.1.1.spatial_dw.output_quant": 0.0,
+            "encoders.1.1.spatial_gate.left_quant": 0.0,
+            "encoders.1.1.spatial_gate.output_quant": 0.0,
+            "encoders.1.1.spatial_project.input_quant": 0.0,
+            "encoders.1.1.spatial_project.output_quant": 0.0,
+            "encoders.1.1.channel_expand.input_quant": 0.0,
+            "encoders.1.1.channel_expand.output_quant": 6.103515625e-05,
+            "encoders.1.1.channel_gate.left_quant": 0.0001220703125,
+            "encoders.1.1.channel_gate.output_quant": 0.0001220703125,
+            "encoders.1.1.channel_project.input_quant": 0.0,
+            "encoders.1.1.channel_project.output_quant": 0.0,
+            "encoders.1.1.spatial_residual_quant": 0.0,
+            "encoders.1.1.channel_residual_quant": 0.0,
+            "encoders.2.0.spatial_expand.input_quant": 0.0,
+            "encoders.2.0.spatial_expand.output_quant": 0.0,
+            "encoders.2.0.spatial_dw.input_quant": 0.0,
+            "encoders.2.0.spatial_dw.output_quant": 0.0,
+            "encoders.2.0.spatial_gate.left_quant": 0.0,
+            "encoders.2.0.spatial_gate.output_quant": 0.0,
+            "encoders.2.0.spatial_project.input_quant": 0.0,
+            "encoders.2.0.spatial_project.output_quant": 0.0,
+            "encoders.2.0.channel_expand.input_quant": 0.0,
+            "encoders.2.0.channel_expand.output_quant": 0.0,
+            "encoders.2.0.channel_gate.left_quant": 0.0,
+            "encoders.2.0.channel_gate.output_quant": 0.00032552084303461015,
+            "encoders.2.0.channel_project.input_quant": 0.0,
+            "encoders.2.0.channel_project.output_quant": 0.0,
+            "encoders.2.0.spatial_residual_quant": 0.0,
+            "encoders.2.0.channel_residual_quant": 0.0,
+            "encoders.2.1.spatial_expand.input_quant": 0.0,
+            "encoders.2.1.spatial_expand.output_quant": 0.0,
+            "encoders.2.1.spatial_dw.input_quant": 0.0,
+            "encoders.2.1.spatial_dw.output_quant": 0.0,
+            "encoders.2.1.spatial_gate.left_quant": 0.0,
+            "encoders.2.1.spatial_gate.output_quant": 0.0,
+            "encoders.2.1.spatial_project.input_quant": 0.0,
+            "encoders.2.1.spatial_project.output_quant": 0.0,
+            "encoders.2.1.channel_expand.input_quant": 0.0,
+            "encoders.2.1.channel_expand.output_quant": 0.0,
+            "encoders.2.1.channel_gate.left_quant": 0.0,
+            "encoders.2.1.channel_gate.output_quant": 0.0,
+            "encoders.2.1.channel_project.input_quant": 0.0,
+            "encoders.2.1.channel_project.output_quant": 0.0,
+            "encoders.2.1.spatial_residual_quant": 0.0,
+            "encoders.2.1.channel_residual_quant": 0.0,
+            "encoders.2.2.spatial_expand.input_quant": 0.0,
+            "encoders.2.2.spatial_expand.output_quant": 0.0,
+            "encoders.2.2.spatial_dw.input_quant": 0.0,
+            "encoders.2.2.spatial_dw.output_quant": 0.0,
+            "encoders.2.2.spatial_gate.left_quant": 0.0,
+            "encoders.2.2.spatial_gate.output_quant": 0.0,
+            "encoders.2.2.spatial_project.input_quant": 0.0,
+            "encoders.2.2.spatial_project.output_quant": 0.0,
+            "encoders.2.2.channel_expand.input_quant": 0.0,
+            "encoders.2.2.channel_expand.output_quant": 0.0,
+            "encoders.2.2.channel_gate.left_quant": 0.0,
+            "encoders.2.2.channel_gate.output_quant": 0.00032552084303461015,
+            "encoders.2.2.channel_project.input_quant": 0.0,
+            "encoders.2.2.channel_project.output_quant": 0.0,
+            "encoders.2.2.spatial_residual_quant": 0.0,
+            "encoders.2.2.channel_residual_quant": 0.0,
+            "encoders.2.3.spatial_expand.input_quant": 0.0,
+            "encoders.2.3.spatial_expand.output_quant": 0.0,
+            "encoders.2.3.spatial_dw.input_quant": 0.0,
+            "encoders.2.3.spatial_dw.output_quant": 0.0,
+            "encoders.2.3.spatial_gate.left_quant": 0.0,
+            "encoders.2.3.spatial_gate.output_quant": 0.0,
+            "encoders.2.3.spatial_project.input_quant": 0.0,
+            "encoders.2.3.spatial_project.output_quant": 0.0,
+            "encoders.2.3.channel_expand.input_quant": 0.0,
+            "encoders.2.3.channel_expand.output_quant": 0.0,
+            "encoders.2.3.channel_gate.left_quant": 0.0,
+            "encoders.2.3.channel_gate.output_quant": 0.0,
+            "encoders.2.3.channel_project.input_quant": 0.0,
+            "encoders.2.3.channel_project.output_quant": 0.0,
+            "encoders.2.3.spatial_residual_quant": 0.0,
+            "encoders.2.3.channel_residual_quant": 0.0,
+            "downs.0.input_quant": 0.0,
+            "downs.0.output_quant": 0.0,
+            "downs.1.input_quant": 0.0,
+            "downs.1.output_quant": 0.0,
+            "downs.2.input_quant": 0.0,
+            "downs.2.output_quant": 0.0,
+            "middle.0.spatial_expand.input_quant": 0.0,
+            "middle.0.spatial_expand.output_quant": 0.0,
+            "middle.0.spatial_dw.input_quant": 0.0,
+            "middle.0.spatial_dw.output_quant": 0.0,
+            "middle.0.spatial_gate.left_quant": 0.0,
+            "middle.0.spatial_gate.output_quant": 0.0,
+            "middle.0.spatial_project.input_quant": 0.0,
+            "middle.0.spatial_project.output_quant": 0.0,
+            "middle.0.channel_expand.input_quant": 0.0,
+            "middle.0.channel_expand.output_quant": 0.0,
+            "middle.0.channel_gate.left_quant": 0.0,
+            "middle.0.channel_gate.output_quant": 0.0,
+            "middle.0.channel_project.input_quant": 0.0,
+            "middle.0.channel_project.output_quant": 0.0,
+            "middle.0.spatial_residual_quant": 0.0,
+            "middle.0.channel_residual_quant": 0.0,
+            "middle.1.spatial_expand.input_quant": 0.0,
+            "middle.1.spatial_expand.output_quant": 0.0,
+            "middle.1.spatial_dw.input_quant": 0.0,
+            "middle.1.spatial_dw.output_quant": 0.0,
+            "middle.1.spatial_gate.left_quant": 0.0,
+            "middle.1.spatial_gate.output_quant": 0.0,
+            "middle.1.spatial_project.input_quant": 0.0,
+            "middle.1.spatial_project.output_quant": 0.0,
+            "middle.1.channel_expand.input_quant": 0.0,
+            "middle.1.channel_expand.output_quant": 0.0,
+            "middle.1.channel_gate.left_quant": 0.0,
+            "middle.1.channel_gate.output_quant": 0.0,
+            "middle.1.channel_project.input_quant": 0.0,
+            "middle.1.channel_project.output_quant": 0.0,
+            "middle.1.spatial_residual_quant": 0.0,
+            "middle.1.channel_residual_quant": 0.0,
+            "ups.0.conv.input_quant": 0.0,
+            "ups.0.conv.output_quant": 0.0,
+            "ups.1.conv.input_quant": 0.0,
+            "ups.1.conv.output_quant": 0.0006103515625,
+            "ups.2.conv.input_quant": 0.000732421875,
+            "ups.2.conv.output_quant": 0.00042724609375,
+            "decoders.0.0.spatial_expand.input_quant": 0.0,
+            "decoders.0.0.spatial_expand.output_quant": 0.0,
+            "decoders.0.0.spatial_dw.input_quant": 0.0,
+            "decoders.0.0.spatial_dw.output_quant": 0.0,
+            "decoders.0.0.spatial_gate.left_quant": 0.0,
+            "decoders.0.0.spatial_gate.output_quant": 0.0,
+            "decoders.0.0.spatial_project.input_quant": 0.0,
+            "decoders.0.0.spatial_project.output_quant": 0.0,
+            "decoders.0.0.channel_expand.input_quant": 0.0,
+            "decoders.0.0.channel_expand.output_quant": 0.0,
+            "decoders.0.0.channel_gate.left_quant": 0.0,
+            "decoders.0.0.channel_gate.output_quant": 0.00032552084303461015,
+            "decoders.0.0.channel_project.input_quant": 0.0,
+            "decoders.0.0.channel_project.output_quant": 0.0,
+            "decoders.0.0.spatial_residual_quant": 0.0,
+            "decoders.0.0.channel_residual_quant": 0.0,
+            "decoders.0.1.spatial_expand.input_quant": 0.0,
+            "decoders.0.1.spatial_expand.output_quant": 0.0,
+            "decoders.0.1.spatial_dw.input_quant": 0.0,
+            "decoders.0.1.spatial_dw.output_quant": 0.0,
+            "decoders.0.1.spatial_gate.left_quant": 0.0,
+            "decoders.0.1.spatial_gate.output_quant": 0.0,
+            "decoders.0.1.spatial_project.input_quant": 0.0,
+            "decoders.0.1.spatial_project.output_quant": 0.0,
+            "decoders.0.1.channel_expand.input_quant": 0.0,
+            "decoders.0.1.channel_expand.output_quant": 0.0,
+            "decoders.0.1.channel_gate.left_quant": 0.0,
+            "decoders.0.1.channel_gate.output_quant": 0.0,
+            "decoders.0.1.channel_project.input_quant": 0.0,
+            "decoders.0.1.channel_project.output_quant": 0.0,
+            "decoders.0.1.spatial_residual_quant": 0.0,
+            "decoders.0.1.channel_residual_quant": 0.0,
+            "decoders.1.0.spatial_expand.input_quant": 0.0,
+            "decoders.1.0.spatial_expand.output_quant": 6.103515625e-05,
+            "decoders.1.0.spatial_dw.input_quant": 6.103515625e-05,
+            "decoders.1.0.spatial_dw.output_quant": 0.0,
+            "decoders.1.0.spatial_gate.left_quant": 0.0,
+            "decoders.1.0.spatial_gate.output_quant": 0.0,
+            "decoders.1.0.spatial_project.input_quant": 0.0,
+            "decoders.1.0.spatial_project.output_quant": 0.0,
+            "decoders.1.0.channel_expand.input_quant": 0.0,
+            "decoders.1.0.channel_expand.output_quant": 0.0,
+            "decoders.1.0.channel_gate.left_quant": 0.0,
+            "decoders.1.0.channel_gate.output_quant": 0.0001220703125,
+            "decoders.1.0.channel_project.input_quant": 0.0,
+            "decoders.1.0.channel_project.output_quant": 0.0,
+            "decoders.1.0.spatial_residual_quant": 0.0,
+            "decoders.1.0.channel_residual_quant": 0.0,
+            "decoders.1.1.spatial_expand.input_quant": 0.0,
+            "decoders.1.1.spatial_expand.output_quant": 0.00067138671875,
+            "decoders.1.1.spatial_dw.input_quant": 0.0,
+            "decoders.1.1.spatial_dw.output_quant": 0.0,
+            "decoders.1.1.spatial_gate.left_quant": 0.0,
+            "decoders.1.1.spatial_gate.output_quant": 0.0,
+            "decoders.1.1.spatial_project.input_quant": 0.0,
+            "decoders.1.1.spatial_project.output_quant": 0.0,
+            "decoders.1.1.channel_expand.input_quant": 0.0,
+            "decoders.1.1.channel_expand.output_quant": 0.00048828125,
+            "decoders.1.1.channel_gate.left_quant": 0.0008544921875,
+            "decoders.1.1.channel_gate.output_quant": 0.000244140625,
+            "decoders.1.1.channel_project.input_quant": 0.0,
+            "decoders.1.1.channel_project.output_quant": 0.0,
+            "decoders.1.1.spatial_residual_quant": 0.0,
+            "decoders.1.1.channel_residual_quant": 0.0,
+            "decoders.2.0.spatial_expand.input_quant": 0.0001220703125,
+            "decoders.2.0.spatial_expand.output_quant": 0.0001220703125,
+            "decoders.2.0.spatial_dw.input_quant": 0.0,
+            "decoders.2.0.spatial_dw.output_quant": 0.0,
+            "decoders.2.0.spatial_gate.left_quant": 0.0,
+            "decoders.2.0.spatial_gate.output_quant": 0.00054931640625,
+            "decoders.2.0.spatial_project.input_quant": 0.0,
+            "decoders.2.0.spatial_project.output_quant": 0.0,
+            "decoders.2.0.channel_expand.input_quant": 0.0,
+            "decoders.2.0.channel_expand.output_quant": 3.0517578125e-05,
+            "decoders.2.0.channel_gate.left_quant": 0.0,
+            "decoders.2.0.channel_gate.output_quant": 0.00091552734375,
+            "decoders.2.0.channel_project.input_quant": 0.0008544921875,
+            "decoders.2.0.channel_project.output_quant": 0.0,
+            "decoders.2.0.spatial_residual_quant": 0.0001220703125,
+            "decoders.2.0.channel_residual_quant": 0.0,
+            "decoders.2.1.spatial_expand.input_quant": 0.0,
+            "decoders.2.1.spatial_expand.output_quant": 6.103515625e-05,
+            "decoders.2.1.spatial_dw.input_quant": 0.0,
+            "decoders.2.1.spatial_dw.output_quant": 0.0,
+            "decoders.2.1.spatial_gate.left_quant": 0.0,
+            "decoders.2.1.spatial_gate.output_quant": 0.0001220703125,
+            "decoders.2.1.spatial_project.input_quant": 0.0,
+            "decoders.2.1.spatial_project.output_quant": 0.0,
+            "decoders.2.1.channel_expand.input_quant": 0.0,
+            "decoders.2.1.channel_expand.output_quant": 0.000335693359375,
+            "decoders.2.1.channel_gate.left_quant": 0.0,
+            "decoders.2.1.channel_gate.output_quant": 0.00030517578125,
+            "decoders.2.1.channel_project.input_quant": 0.00018310546875,
+            "decoders.2.1.channel_project.output_quant": 0.0,
+            "decoders.2.1.spatial_residual_quant": 0.0,
+            "decoders.2.1.channel_residual_quant": 0.0,
+            "film_stage3.feature_quant": 0.0,
+            "film_stage3.gamma_quant": 0.0,
+            "film_stage3.beta_quant": 0.0,
+            "film_stage3.output_quant": 0.0,
+            "film_middle.feature_quant": 0.0,
+            "film_middle.gamma_quant": 0.0,
+            "film_middle.beta_quant": 0.0,
+            "film_middle.output_quant": 0.0
+          },
+          "maximum": 0.00091552734375,
+          "range_tuning_history": [
+            {
+              "iteration": 0,
+              "maximum": 0.00189208984375
+            },
+            {
+              "iteration": 1,
+              "maximum": 0.00189208984375
+            },
+            {
+              "iteration": 2,
+              "maximum": 0.00189208984375
+            },
+            {
+              "iteration": 3,
+              "maximum": 0.00189208984375
+            },
+            {
+              "iteration": 4,
+              "maximum": 0.0013427734375
+            },
+            {
+              "iteration": 5,
+              "maximum": 0.00091552734375
+            }
+          ],
+          "passed": true
+        },
+        "reference_onnx": {
+          "profile_mode": "smoke",
+          "compile_height": 32,
+          "compile_width": 48,
+          "release_compile_height": 768,
+          "release_compile_width": 1024,
+          "raw_height": 1536,
+          "raw_width": 2048,
+          "path": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\onnx_reference\\candidate_reference_qdq.onnx",
+          "sha256": "f6f5d9b7cf776affc7e1f7789149e7590410e45143dc3d7de0052c25e3506550",
+          "operators": [
+            "Add",
+            "Cast",
+            "Clip",
+            "Constant",
+            "Conv",
+            "DequantizeLinear",
+            "Gemm",
+            "Identity",
+            "Mul",
+            "QuantizeLinear",
+            "Relu",
+            "Resize",
+            "Slice",
+            "Unsqueeze"
+          ],
+          "operator_counts": {
+            "Add": 41,
+            "Cast": 1,
+            "Clip": 6,
+            "Constant": 258,
+            "Conv": 88,
+            "DequantizeLinear": 394,
+            "Gemm": 5,
+            "Identity": 388,
+            "Mul": 74,
+            "QuantizeLinear": 394,
+            "Relu": 2,
+            "Resize": 3,
+            "Slice": 71,
+            "Unsqueeze": 14
+          },
+          "unsupported_operators": [],
+          "forbidden_gate_operators": [],
+          "dynamic_slice_inputs": [],
+          "input_shapes": {
+            "packed_raw": [
+              1,
+              4,
+              32,
+              48
+            ],
+            "condition": [
+              1,
+              24
+            ]
+          },
+          "input_element_types": {
+            "packed_raw": 1,
+            "condition": 1
+          },
+          "output_element_types": {
+            "noise_pred": 1
+          },
+          "condition_cast_count": 1,
+          "alignment": {
+            "available": true,
+            "max_abs_error": 0.0,
+            "mean_abs_error": 0.0,
+            "reason": ""
+          },
+          "gate_export": {
+            "global_monkey_patch": false,
+            "static_gates": [
+              {
+                "name": "encoders.0.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.2.0.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.0.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.1.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.1.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.2.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.2.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.3.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.3.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "middle.0.spatial_gate",
+                "channels": 96
+              },
+              {
+                "name": "middle.0.channel_gate",
+                "channels": 96
+              },
+              {
+                "name": "middle.1.spatial_gate",
+                "channels": 96
+              },
+              {
+                "name": "middle.1.channel_gate",
+                "channels": 96
+              },
+              {
+                "name": "decoders.0.0.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.0.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.1.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.1.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.2.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.channel_gate",
+                "channels": 16
+              }
+            ],
+            "legacy_replacements": []
+          },
+          "mixed_precision_boundary": false
+        },
+        "mixed_onnx": {
+          "profile_mode": "smoke",
+          "compile_height": 32,
+          "compile_width": 48,
+          "release_compile_height": 768,
+          "release_compile_width": 1024,
+          "raw_height": 1536,
+          "raw_width": 2048,
+          "path": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\onnx_mixed\\dark_preview_ryyb_4x3_mixed.onnx",
+          "sha256": "1636c42da4961c3a0d3f6d1f5709451f3b7d152df86f4cb6eb5b54e6b3401960",
+          "operators": [
+            "Add",
+            "Cast",
+            "Clip",
+            "Constant",
+            "Conv",
+            "DequantizeLinear",
+            "Gemm",
+            "Identity",
+            "Mul",
+            "QuantizeLinear",
+            "Relu",
+            "Resize",
+            "Slice",
+            "Unsqueeze"
+          ],
+          "operator_counts": {
+            "Add": 41,
+            "Cast": 3,
+            "Clip": 6,
+            "Constant": 258,
+            "Conv": 88,
+            "DequantizeLinear": 394,
+            "Gemm": 5,
+            "Identity": 441,
+            "Mul": 74,
+            "QuantizeLinear": 394,
+            "Relu": 2,
+            "Resize": 3,
+            "Slice": 71,
+            "Unsqueeze": 14
+          },
+          "unsupported_operators": [],
+          "forbidden_gate_operators": [],
+          "dynamic_slice_inputs": [],
+          "input_shapes": {
+            "packed_raw": [
+              1,
+              4,
+              32,
+              48
+            ],
+            "condition": [
+              1,
+              24
+            ]
+          },
+          "input_element_types": {
+            "packed_raw": 10,
+            "condition": 1
+          },
+          "output_element_types": {
+            "noise_pred": 10
+          },
+          "condition_cast_count": 1,
+          "alignment": {
+            "available": false,
+            "max_abs_error": null,
+            "mean_abs_error": null,
+            "reason": "CPU ONNX Runtime 不作为 FP16 Q/DQ 部署图数值证据；使用独立 FP32 Q/DQ Reference 并等待目标端"
+          },
+          "gate_export": {
+            "global_monkey_patch": false,
+            "static_gates": [
+              {
+                "name": "encoders.0.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.0.1.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "encoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "encoders.2.0.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.0.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.1.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.1.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.2.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.2.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.3.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "encoders.2.3.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "middle.0.spatial_gate",
+                "channels": 96
+              },
+              {
+                "name": "middle.0.channel_gate",
+                "channels": 96
+              },
+              {
+                "name": "middle.1.spatial_gate",
+                "channels": 96
+              },
+              {
+                "name": "middle.1.channel_gate",
+                "channels": 96
+              },
+              {
+                "name": "decoders.0.0.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.0.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.1.spatial_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.0.1.channel_gate",
+                "channels": 48
+              },
+              {
+                "name": "decoders.1.0.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.0.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.spatial_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.1.1.channel_gate",
+                "channels": 32
+              },
+              {
+                "name": "decoders.2.0.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.0.channel_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.spatial_gate",
+                "channels": 16
+              },
+              {
+                "name": "decoders.2.1.channel_gate",
+                "channels": 16
+              }
+            ],
+            "legacy_replacements": []
+          },
+          "mixed_precision_boundary": true
+        },
+        "metrics": {
+          "candidate_id": "P36-16",
+          "raw_psnr_drop_db": 0.0,
+          "ssim_drop": 0.0,
+          "delta_e00_increase": 0.0,
+          "worst_camera_iso_drop_db": 0.0,
+          "macs": 28137018880,
+          "activation_peak_bytes": 50331648,
+          "cast_count": 3,
+          "qdq_count": 788,
+          "ort_p95_ms": 4.781360039487481,
+          "parameter_count": 419652,
+          "onnx_size_bytes": 1366579,
+          "max_saturation_rate": 0.00091552734375,
+          "numerical_valid": true,
+          "graph_valid": true,
+          "mixed_precision_valid": true
+        }
+      }
+    },
+    "selection": {
+      "selected_candidate_id": "P36-16",
+      "development_selected": true,
+      "precision_policy": "fixed_v6_mixed_lsqplus",
+      "dynamic_affine_target_pending": true,
+      "target_validated": false,
+      "release_ready": false,
+      "selection_order": [
+        "hard_gates",
+        "worst_bucket_quality",
+        "quality_equivalence",
+        "macs",
+        "activation_peak",
+        "cast_qdq_count",
+        "ort_p95_proxy",
+        "parameters_onnx_size"
+      ],
+      "candidates": [
+        {
+          "candidate_id": "P10-16",
+          "raw_psnr_drop_db": 0.0,
+          "ssim_drop": 0.0,
+          "delta_e00_increase": 0.0,
+          "worst_camera_iso_drop_db": 0.0,
+          "macs": 34438706688,
+          "activation_peak_bytes": 50331648,
+          "cast_count": 3,
+          "qdq_count": 788,
+          "ort_p95_ms": 5.547839961946011,
+          "parameter_count": 591284,
+          "onnx_size_bytes": 1711571,
+          "max_saturation_rate": 0.0009765625,
+          "numerical_valid": true,
+          "graph_valid": true,
+          "mixed_precision_valid": true,
+          "hard_gate_failures": []
+        },
+        {
+          "candidate_id": "P18-16",
+          "raw_psnr_drop_db": 0.0,
+          "ssim_drop": 0.0,
+          "delta_e00_increase": 0.0,
+          "worst_camera_iso_drop_db": 0.0,
+          "macs": 30057494016,
+          "activation_peak_bytes": 50331648,
+          "cast_count": 3,
+          "qdq_count": 788,
+          "ort_p95_ms": 4.648320050910115,
+          "parameter_count": 543396,
+          "onnx_size_bytes": 1615129,
+          "max_saturation_rate": 0.0009765625,
+          "numerical_valid": true,
+          "graph_valid": true,
+          "mixed_precision_valid": true,
+          "hard_gate_failures": []
+        },
+        {
+          "candidate_id": "P36-16",
+          "raw_psnr_drop_db": 0.0,
+          "ssim_drop": 0.0,
+          "delta_e00_increase": 0.0,
+          "worst_camera_iso_drop_db": 0.0,
+          "macs": 28137018880,
+          "activation_peak_bytes": 50331648,
+          "cast_count": 3,
+          "qdq_count": 788,
+          "ort_p95_ms": 4.781360039487481,
+          "parameter_count": 419652,
+          "onnx_size_bytes": 1366579,
+          "max_saturation_rate": 0.00091552734375,
+          "numerical_valid": true,
+          "graph_valid": true,
+          "mixed_precision_valid": true,
+          "hard_gate_failures": []
+        }
+      ],
+      "smoke_only": true,
+      "phase1_full_release_shape_executed": false,
+      "removed_executable_candidates": [
+        "P10-16",
+        "P18-16"
+      ],
+      "loser_retention_policy": "metrics_hash_reason_only_non_executable"
+    },
+    "winner_q2_q3": {
+      "policy": {
+        "activation_offset": true,
+        "precision_mapping": "fixed_v6_mixed",
+        "weight_bits": 8,
+        "activation_bits": 8
+      },
+      "config": {
+        "output_dir": "artifacts\\v6_1_cpu_smoke\\winner_q2_q3",
+        "device": "cpu",
+        "q1_steps": 1,
+        "q2_steps": 1,
+        "q3_steps": 1,
+        "quant_learning_rate": 0.0001,
+        "weight_learning_rate": 1e-05,
+        "q3_learning_rate": 5e-06,
+        "weight_decay": 1e-05,
+        "gradient_clip": 1.0,
+        "seed": 20260804,
+        "checkpoint_interval": 1,
+        "resume_from": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\q1_probe\\checkpoints\\q1_step_1.pt",
+        "run_through_phase": "q3"
+      },
+      "config_hash": "187e40248a5b219dde82ce9a08018f07b39467ee235b38201f72755943d8ec61",
+      "resumed_from": "artifacts\\v6_1_cpu_smoke\\candidates\\P36-16\\q1_probe\\checkpoints\\q1_step_1.pt",
+      "q0_quantizer_count": 276,
+      "q3_freeze_max_abs_drift": 0.0,
+      "run_through_phase": "q3",
+      "history": [
+        {
+          "phase": "q2",
+          "step": 1,
+          "loss_total": 0.17361655831336975,
+          "loss_feature_kd": 1.1308703422546387,
+          "loss_attention_kd": 0.011139413341879845,
+          "loss_temporal": 0.025035830214619637,
+          "loss_gate": 0.0,
+          "raw_psnr": 31.32561585594168,
+          "gradient_norm": 0.12692208588123322
+        },
+        {
+          "phase": "q3",
+          "step": 1,
+          "loss_total": 0.17351745069026947,
+          "loss_feature_kd": 1.1299309730529785,
+          "loss_attention_kd": 0.011134309694170952,
+          "loss_temporal": 0.02493729442358017,
+          "loss_gate": 0.0,
+          "raw_psnr": 31.32561585594168,
+          "gradient_norm": 0.12171955406665802
+        }
+      ],
+      "quantizer_count": 362,
+      "film_audit": {
+        "per_camera": {
+          "main": {
+            "gamma_mean_abs_error": 0.00010356549319112673,
+            "gamma_max_abs_error": 0.00011372088920325041,
+            "beta_mean_abs_error": 0.00010487265535630286,
+            "beta_max_abs_error": 0.00011383404489606619
+          },
+          "tele": {
+            "gamma_mean_abs_error": 9.804451838135719e-05,
+            "gamma_max_abs_error": 0.00010749389184638858,
+            "beta_mean_abs_error": 9.91879278444685e-05,
+            "beta_max_abs_error": 0.00010759284486994147
+          }
+        },
+        "condition_encoder_quantizers": {}
+      },
+      "full_report_local_path": "artifacts\\v6_1_cpu_smoke\\winner_q2_q3\\QAT训练与量化审计.json",
+      "limitations": [
+        "V6.1 发布策略固定为 LSQ+；本机 QAT 只验证算法链路，仍需真实 RYYB 数据复验",
+        "非零 Offset、FiLM FP16 Island 和最终 OM 必须通过目标 DDK/麒麟9000门禁"
+      ]
+    },
+    "dynamic_affine_integer": {
+      "stage3": {
+        "max_abs_error": 0.0,
+        "mean_abs_error": 0.0,
+        "integer": {
+          "feature": {
+            "scale": 0.0011469930177554488,
+            "zero_point": 0,
+            "qmin": -128,
+            "qmax": 127
+          },
+          "gamma": {
+            "scale": 0.007875065319240093,
+            "zero_point": 0,
+            "qmin": -128,
+            "qmax": 127
+          },
+          "beta": {
+            "scale": 1.049884076564922e-06,
+            "zero_point": 0,
+            "qmin": -128,
+            "qmax": 127
+          },
+          "output": {
+            "scale": 0.0011469228193163872,
+            "zero_point": 0,
+            "qmin": -128,
+            "qmax": 127
+          },
+          "product_scale": 9.032644935536471e-06,
+          "int32_abs_max": 16126,
+          "int32_overflow": false
+        },
+        "dynamic_affine_target_pending": true
+      },
+      "middle": {
+        "max_abs_error": 0.0,
+        "mean_abs_error": 0.0,
+        "integer": {
+          "feature": {
+            "scale": 0.0009370269835926592,
+            "zero_point": 0,
+            "qmin": -128,
+            "qmax": 127
+          },
+          "gamma": {
+            "scale": 0.007875063456594944,
+            "zero_point": 0,
+            "qmin": -128,
+            "qmax": 127
+          },
+          "beta": {
+            "scale": 1.049816660270153e-06,
+            "zero_point": 0,
+            "qmin": -128,
+            "qmax": 127
+          },
+          "output": {
+            "scale": 0.000936862314119935,
+            "zero_point": 0,
+            "qmin": -128,
+            "qmax": 127
+          },
+          "product_scale": 7.379146956333941e-06,
+          "int32_abs_max": 16124,
+          "int32_overflow": false
+        },
+        "dynamic_affine_target_pending": true
+      }
+    },
+    "final_onnx": {
+      "profile_mode": "smoke",
+      "compile_height": 32,
+      "compile_width": 48,
+      "release_compile_height": 768,
+      "release_compile_width": 1024,
+      "raw_height": 1536,
+      "raw_width": 2048,
+      "path": "artifacts\\v6_1_cpu_smoke\\release_v6_1\\dark_preview_ryyb_4x3_mixed.onnx",
+      "sha256": "3638f612ed9e2d0971314edb4dbcbc8211018c8deae658610e6c9f01af61008c",
+      "operators": [
+        "Add",
+        "Cast",
+        "Clip",
+        "Constant",
+        "Conv",
+        "DequantizeLinear",
+        "Gemm",
+        "Identity",
+        "Mul",
+        "QuantizeLinear",
+        "Relu",
+        "Resize",
+        "Slice",
+        "Unsqueeze"
+      ],
+      "operator_counts": {
+        "Add": 41,
+        "Cast": 3,
+        "Clip": 6,
+        "Constant": 258,
+        "Conv": 88,
+        "DequantizeLinear": 394,
+        "Gemm": 5,
+        "Identity": 441,
+        "Mul": 74,
+        "QuantizeLinear": 394,
+        "Relu": 2,
+        "Resize": 3,
+        "Slice": 71,
+        "Unsqueeze": 14
+      },
+      "unsupported_operators": [],
+      "forbidden_gate_operators": [],
+      "dynamic_slice_inputs": [],
+      "input_shapes": {
+        "packed_raw": [
+          1,
+          4,
+          32,
+          48
+        ],
+        "condition": [
+          1,
+          24
+        ]
+      },
+      "input_element_types": {
+        "packed_raw": 10,
+        "condition": 1
+      },
+      "output_element_types": {
+        "noise_pred": 10
+      },
+      "condition_cast_count": 1,
+      "alignment": {
+        "available": false,
+        "max_abs_error": null,
+        "mean_abs_error": null,
+        "reason": "CPU ONNX Runtime 不作为 FP16 Q/DQ 部署图数值证据；使用独立 FP32 Q/DQ Reference 并等待目标端"
+      },
+      "gate_export": {
+        "global_monkey_patch": false,
+        "static_gates": [
+          {
+            "name": "encoders.0.0.spatial_gate",
+            "channels": 16
+          },
+          {
+            "name": "encoders.0.0.channel_gate",
+            "channels": 16
+          },
+          {
+            "name": "encoders.0.1.spatial_gate",
+            "channels": 16
+          },
+          {
+            "name": "encoders.0.1.channel_gate",
+            "channels": 16
+          },
+          {
+            "name": "encoders.1.0.spatial_gate",
+            "channels": 32
+          },
+          {
+            "name": "encoders.1.0.channel_gate",
+            "channels": 32
+          },
+          {
+            "name": "encoders.1.1.spatial_gate",
+            "channels": 32
+          },
+          {
+            "name": "encoders.1.1.channel_gate",
+            "channels": 32
+          },
+          {
+            "name": "encoders.2.0.spatial_gate",
+            "channels": 48
+          },
+          {
+            "name": "encoders.2.0.channel_gate",
+            "channels": 48
+          },
+          {
+            "name": "encoders.2.1.spatial_gate",
+            "channels": 48
+          },
+          {
+            "name": "encoders.2.1.channel_gate",
+            "channels": 48
+          },
+          {
+            "name": "encoders.2.2.spatial_gate",
+            "channels": 48
+          },
+          {
+            "name": "encoders.2.2.channel_gate",
+            "channels": 48
+          },
+          {
+            "name": "encoders.2.3.spatial_gate",
+            "channels": 48
+          },
+          {
+            "name": "encoders.2.3.channel_gate",
+            "channels": 48
+          },
+          {
+            "name": "middle.0.spatial_gate",
+            "channels": 96
+          },
+          {
+            "name": "middle.0.channel_gate",
+            "channels": 96
+          },
+          {
+            "name": "middle.1.spatial_gate",
+            "channels": 96
+          },
+          {
+            "name": "middle.1.channel_gate",
+            "channels": 96
+          },
+          {
+            "name": "decoders.0.0.spatial_gate",
+            "channels": 48
+          },
+          {
+            "name": "decoders.0.0.channel_gate",
+            "channels": 48
+          },
+          {
+            "name": "decoders.0.1.spatial_gate",
+            "channels": 48
+          },
+          {
+            "name": "decoders.0.1.channel_gate",
+            "channels": 48
+          },
+          {
+            "name": "decoders.1.0.spatial_gate",
+            "channels": 32
+          },
+          {
+            "name": "decoders.1.0.channel_gate",
+            "channels": 32
+          },
+          {
+            "name": "decoders.1.1.spatial_gate",
+            "channels": 32
+          },
+          {
+            "name": "decoders.1.1.channel_gate",
+            "channels": 32
+          },
+          {
+            "name": "decoders.2.0.spatial_gate",
+            "channels": 16
+          },
+          {
+            "name": "decoders.2.0.channel_gate",
+            "channels": 16
+          },
+          {
+            "name": "decoders.2.1.spatial_gate",
+            "channels": 16
+          },
+          {
+            "name": "decoders.2.1.channel_gate",
+            "channels": 16
+          }
+        ],
+        "legacy_replacements": []
+      },
+      "mixed_precision_boundary": true
+    },
+    "om": {
+      "available": false,
+      "release_ready": false,
+      "reason": "smoke Shape 不允许进入 ATC/OM 发布编译",
+      "om_path": "artifacts\\v6_1_cpu_smoke\\release_v6_1\\om\\dark_preview_ryyb_4x3_mixed_int8_fp16.om",
+      "om_sha256": "",
+      "config": {
+        "onnx_path": "artifacts\\v6_1_cpu_smoke\\release_v6_1\\dark_preview_ryyb_4x3_mixed.onnx",
+        "output_dir": "artifacts\\v6_1_cpu_smoke\\release_v6_1\\om",
+        "soc_version": "Kirin9000_TARGET_DDK_REQUIRED",
+        "atc_executable": "atc",
+        "framework": 5,
+        "precision_mode": "must_keep_origin_dtype",
+        "profile_mode": "smoke"
+      }
+    }
+  },
+  "manifest": {
+    "manifest_version": "6.1.0-engineering",
+    "selected_candidate_id": "P36-16",
+    "development_selected": true,
+    "dynamic_affine_target_pending": true,
+    "target_validated": false,
+    "release_ready": false,
+    "smoke_only": true,
+    "profile_mode": "smoke",
+    "scope": "RYYB main+tele single static mixed-precision model",
+    "model_name": "Conditional MobileNAFNet Dark Preview V6.1",
+    "input": {
+      "packed_raw": {
+        "shape": [
+          1,
+          4,
+          32,
+          48
+        ],
+        "dtype": "float16"
+      },
+      "condition": {
+        "shape": [
+          1,
+          24
+        ],
+        "dtype": "float32",
+        "cast_count": 1
+      },
+      "channels": [
+        "R",
+        "Yr",
+        "Yb",
+        "B"
+      ]
+    },
+    "output": {
+      "noise_pred": {
+        "shape": [
+          1,
+          4,
+          32,
+          48
+        ],
+        "dtype": "float16"
+      }
+    },
+    "release_shape_target": [
+      1,
+      4,
+      768,
+      1024
+    ],
+    "precision_policy": "fixed_v6_mixed_lsqplus",
+    "artifact_layout": "single_static_ryyb_4x3_v6_1_smoke",
+    "artifacts": {
+      "buffer_contract": {
+        "path": "buffer_contract_v1.json",
+        "sha256": "59c9f28f0586bbd583c2525423b110415d7d5a239a97737f4e75234cd1e16345"
+      },
+      "condition_schema": {
+        "path": "condition_schema_v2.json",
+        "sha256": "7674de87cc3a609c346e4fa323ba30c3ec857aa02b095dae47a63f4947b49b36"
+      },
+      "development_selection": {
+        "path": "development_selection_v6_1.json",
+        "sha256": "3511b96fb7df7f277f0018bfd7a6b89dd61a23b908bdaf36b6e33a8b2bfbc4f4"
+      },
+      "lsc_profiles": {
+        "path": "lsc_profiles_ryyb.json",
+        "sha256": "3349c6901c81551808339e2f15ad2792b18f05069f7f1edac3e544c893cfca81"
+      },
+      "noise_profiles": {
+        "path": "noise_profiles_ryyb.json",
+        "sha256": "720d22f2b1ce27c0c415a7df4a739c4a3ff77ad1cd8e329fd5169a7ac6e90e2c"
+      },
+      "onnx": {
+        "path": "dark_preview_ryyb_4x3_mixed.onnx",
+        "sha256": "3638f612ed9e2d0971314edb4dbcbc8211018c8deae658610e6c9f01af61008c"
+      },
+      "quant_policy": {
+        "path": "quant_policy_v6_1_mixed.json",
+        "sha256": "766c91b0faec37b41851d9032e29ecdd9dee2a2af56f70d22ca67f3cb1258321"
+      },
+      "raw_domain_profile": {
+        "path": "raw_domain_profile.json",
+        "sha256": "ccd6a1817fd327f6a202187f5a5e61a0a7c622419c5e2e89a5a6d207f6e4a695"
+      },
+      "reference_isp_profile": {
+        "path": "reference_isp_profile.json",
+        "sha256": "132b42d5f2f7e9d6dda629b66d1040f56856428943958e4e9a77f7c227f587d8"
+      },
+      "selection_report": {
+        "path": "selection_report_v6_1.md",
+        "sha256": "7992bd2cab2f60e8bf2724a6b4e0e500aa20ae1b959cb8683fcafc6296c8de81"
+      },
+      "sensor_profiles": {
+        "path": "sensor_profiles_ryyb.json",
+        "sha256": "6d8e914812878d29e0a22a5dab6f635ea76592bd0060d0c96b3b1bfa866eccc0"
+      },
+      "topology": {
+        "path": "topology_v6_1.json",
+        "sha256": "53b22227e29d7aea2a76e90339dee15d81c0e3be45ba8fc298d348d73d50ebb2"
+      },
+      "unpack_profiles": {
+        "path": "unpack_profiles_ryyb.json",
+        "sha256": "4b7f23e661416e9c5c7292e3d4e996e51b7b0c3e8b39736f7f024efb62d4226f"
+      },
+      "weights": {
+        "path": "model_mixed_qat.safetensors",
+        "sha256": "ad350938b1e5cb2f5b51ddd46e8892e1f1a3bcedee724736270df3df5325c7fc"
+      }
+    },
+    "unpack_profile_hash": "4b7f23e661416e9c5c7292e3d4e996e51b7b0c3e8b39736f7f024efb62d4226f",
+    "lsc_profile_hash": "3349c6901c81551808339e2f15ad2792b18f05069f7f1edac3e544c893cfca81",
+    "buffer_contract_version": "v1",
+    "om": {
+      "available": false,
+      "path": "om/dark_preview_ryyb_4x3_mixed_int8_fp16.om",
+      "sha256": ""
+    },
+    "latency_budget_ms": {
+      "p50": 6.0,
+      "p95": 8.0,
+      "p99": 9.0,
+      "hard_timeout": 10.0
+    },
+    "buffer_contract": {
+      "extra_cpu_memcpy_bytes_per_frame": 0,
+      "fd_import": "stream_init_once",
+      "per_frame_map_unmap": false,
+      "fence_sync_optimization_target_ms": 0.2
+    },
+    "mandatory_target_validation": [
+      "真实主摄/长焦RYYB完整训练、盲测及分桶画质",
+      "目标DDK Dynamic Affine无FP16回退且dynamic_affine_target_pending=false",
+      "麒麟9000 100% NPU且CPU/GPU回退为0",
+      "AI节点6/8/9/10ms和整条Photo Preview 30fps",
+      "DMA-BUF/Fence/Cache/0-byte CPU memcpy",
+      "10000帧、10/30分钟热稳态、功耗、内存及Camera切换"
+    ]
+  },
+  "limitations": [
+    "SIDD smoke_only 只能证明工程链路与相对选优流程",
+    "没有商用 ATC/麒麟9000，Dynamic Affine Fusion 与 100% NPU 未验证",
+    "0.2ms Fence同步、8ms P95、功耗与热稳态未验证"
+  ],
+  "removed_legacy_candidate_outputs": []
+}
